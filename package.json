@@ -1,0 +1,50 @@
+{
+	"name": "@hyperapi/driver-http-node",
+	"version": "0.1.0-beta.1",
+	"description": "HyperAPI HTTP driver for Node.JS.",
+	"publishConfig": {
+		"access": "public",
+		"tag": "beta"
+	},
+	"type": "module",
+	"main": "src/main.js",
+	"engines": {
+		"node": ">=12.0.0"
+	},
+	"peerDependencies": {
+		"@hyperapi/core": "../core",
+		"oh-my-props": ">= 3.0.0-beta.20"
+	},
+	"devDependencies": {
+		"@babel/eslint-parser": "7.21.8",
+		"eslint": "8.41.0",
+		"eslint-config-xo": "0.43.1",
+		"eslint-plugin-import": "2.27.5",
+		"eslint-plugin-jsdoc": "46.5.0",
+		"eslint-plugin-node": "11.1.0",
+		"eslint-plugin-promise": "6.1.1",
+		"eslint-plugin-unicorn": "47.0.0",
+		"mocha": "^10.2.0",
+		"oh-my-props": "3.0.0-beta.20"
+	},
+	"scripts": {},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/hyperapi/driver-http-node.git"
+	},
+	"keywords": [
+		"hyperapi",
+		"driver",
+		"node"
+	],
+	"author": "Daniil Kirichenko (https://twitter.com/kirickme)",
+	"license": "MIT",
+	"bugs": {
+		"url": "https://github.com/hyperapi/driver-http-node/issues"
+	},
+	"homepage": "https://github.com/hyperapi/driver-http-node#readme",
+	"dependencies": {
+		"@kirick/ip": "0.1.0-beta.1",
+		"cbor-x": "^1.5.4"
+	}
+}
