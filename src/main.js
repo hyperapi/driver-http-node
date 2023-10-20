@@ -1,5 +1,6 @@
 /* eslint-disable import/no-unresolved */
 /* eslint-disable import/extensions */
+// @ts-ignore
 
 import HyperAPIDriver            from '@hyperapi/core/driver';
 import HyperAPIRequest           from '@hyperapi/core/request';
@@ -40,10 +41,10 @@ export default class HyperAPIHttpDriver extends HyperAPIDriver {
 			const method = url.pathname.slice(path.length);
 			const args = parseArguments(request, url);
 			const preffered_format = parseAcceptHeader(
-				request.headers['content-type'],
+				request.headers.accept,
 			);
 
-			if (preffered_format === false) {
+			if (args === 'UNSUPPORTED_CONTENT_TYPE') {
 				response.writeHead(415);
 				response.end();
 				return;
@@ -52,7 +53,12 @@ export default class HyperAPIHttpDriver extends HyperAPIDriver {
 			const hyperApiRequest = new HyperAPIRequest(method, args);
 			hyperApiRequest.set('request', request);
 			hyperApiRequest.set('url', url);
-			hyperApiRequest.set('ip', new IP(request.connection.remoteAddress));
+			hyperApiRequest.set(
+				'ip',
+				new IP(
+					request.connection.remoteAddress,
+				),
+			);
 
 			const hyperAPIResponse = await this.onRequest(hyperApiRequest);
 

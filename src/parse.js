@@ -18,19 +18,16 @@ export async function parseArguments(request, url) {
 				break;
 			case 'application/x-www-form-urlencoded':
 				args = Object.fromEntries(
-					new URLSearchParams(await request.text()),
+					new URLSearchParams(
+						await request.text(),
+					),
 				);
 				break;
 			case 'application/cbor':
 				args = decode(await request.arrayBuffer());
 				break;
 			default:
-				return new Response(
-					'',
-					{
-						status: 404,
-					},
-				);
+				return 'UNSUPPORTED_CONTENT_TYPE';
 		}
 	}
 	return args;
@@ -44,7 +41,7 @@ export function parseAcceptHeader(header) {
 	if (types.some((type) => /.+\/(\*|cbor)/.test(type))) {
 		return 'cbor';
 	}
-	return false;
+	return 'json';
 }
 
 export function parseResponseTo(format, body) {

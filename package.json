@@ -12,7 +12,7 @@
 		"node": ">=12.0.0"
 	},
 	"peerDependencies": {
-		"@hyperapi/core": ">= 1.0.0-beta.5",
+		"@hyperapi/core": ">= 0.1.0-beta.5",
 		"oh-my-props": ">= 3.0.0-beta.20"
 	},
 	"devDependencies": {
@@ -44,7 +44,7 @@
 	},
 	"homepage": "https://github.com/hyperapi/driver-http-node#readme",
 	"dependencies": {
-		"@kirick/ip": "0.1.0-beta.1",
+		"@kirick/ip": "0.1.0-beta.3",
 		"cbor-x": "^1.5.4"
 	}
 }

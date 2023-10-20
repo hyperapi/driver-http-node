@@ -6,14 +6,11 @@ settings:
 
 dependencies:
   '@hyperapi/core':
-    specifier: ../core
-    version: link:../core
-  '@hyperapi/core/*':
-    specifier: ../core/src/*.js
-    version: link:../core/src/*.js
+    specifier: '>= 0.1.0-beta.5'
+    version: 0.1.0-beta.5(oh-my-props@3.0.0-beta.20)
   '@kirick/ip':
-    specifier: 0.1.0-beta.1
-    version: 0.1.0-beta.1
+    specifier: 0.1.0-beta.3
+    version: 0.1.0-beta.3
   cbor-x:
     specifier: ^1.5.4
     version: 1.5.4
@@ -384,6 +381,15 @@ packages:
     resolution: {integrity: sha512-ZnQMnLV4e7hDlUvw8H+U8ASL02SS2Gn6+9Ac3wGGLIe7+je2AeAOxPY+izIPJDfFDb7eDjev0Us8MO1iFRN8hA==}
     dev: true
 
+  /@hyperapi/core@0.1.0-beta.5(oh-my-props@3.0.0-beta.20):
+    resolution: {integrity: sha512-AroZGLdKkmcuzLzTfUsSMr6wXP8xavDsHiahWQWp1vCAX+EKGzk8anlAV93uMvy1yfA8WL02kOCT9G6BmWeH0g==}
+    engines: {node: '>=10.0.0'}
+    peerDependencies:
+      oh-my-props: '>= 3.0.0-beta.20'
+    dependencies:
+      oh-my-props: 3.0.0-beta.20
+    dev: false
+
   /@jridgewell/gen-mapping@0.3.3:
     resolution: {integrity: sha512-HLhSWOLRi875zjjMG/r+Nv0oCW8umGb0BgEhyX3dDX3egwZtB8PqLnjz3yedt8R5StBrzcg4aBpnh8UA9D1BoQ==}
     engines: {node: '>=6.0.0'}
@@ -414,8 +420,8 @@ packages:
       '@jridgewell/sourcemap-codec': 1.4.15
     dev: true
 
-  /@kirick/ip@0.1.0-beta.1:
-    resolution: {integrity: sha512-hFFEwb6C4/rAKSsjeebnpBbQo+BMIG/4DyW5d7RVbdGW9mC5M2vM6nCB/D00zLRYjlzpNxYwgbvfKuBCIEX1JA==}
+  /@kirick/ip@0.1.0-beta.3:
+    resolution: {integrity: sha512-hzhrd4HB91xupYofeWKM79GBRMH9scG93i/sEh1k3BGrvYFOKJ1pAH2GOSYvdk1J+TT+i477vnXaza2Y5xLIqQ==}
     dependencies:
       ip-address: 8.1.0
     dev: false
@@ -1923,7 +1929,6 @@ packages:
   /oh-my-props@3.0.0-beta.20:
     resolution: {integrity: sha512-nFJBeTGDKxOE62w2kBCwR5M0GktzH+CwrjiXGxXpfd+beR3mfyhZlqm1OuGvSE0ZRHNz2d9kn/aRI4+uA2w/Dg==}
     engines: {node: '>=12.0.0'}
-    dev: true
 
   /once@1.4.0:
     resolution: {integrity: sha512-lNaJgI+2Q5URQBkccEKHTQOPaXdUxnZZElQTZY0MFUAuaEqe1E+Nyvgdz/aIyNi6Z9MzO5dv1H8n58/GELp3+w==}
