@@ -1,46 +1,75 @@
 
 import { decode, encode } from 'cbor-x';
 
-export async function parseArguments(request, url) {
-	let args = {};
-
-	if (request.method === 'GET' || request.method === 'HEAD') {
-		for (const [ key, value ] of url.searchParams.entries()) {
-			args[key] = value;
+function getMIME(type) {
+	if (typeof type === 'string') {
+		const index = type.indexOf(';');
+		if (index !== -1) {
+			return type.slice(0, index);
 		}
 	}
-	else if (request.body) {
-		// replace by regexp is faster than split.
-		const type_header = request.headers.get('Content-Type').replace(/;.+/, '');
-		switch (type_header) {
+
+	return type;
+}
+
+export async function parseArguments(request, url) {
+	let args = {};
+	if (request.method === 'GET' || request.method === 'HEAD') {
+		args = Object.fromEntries(
+			url.searchParams.entries(),
+		);
+	}
+	else {
+		// get body from request
+		const body = await new Promise((resolve, reject) => {
+			const chunks = [];
+			request.on('data', (chunk) => {
+				chunks.push(chunk);
+			});
+			request.on('end', () => {
+				resolve(Buffer.concat(chunks));
+			});
+			request.on('error', reject);
+		});
+		const type_header = request.headers['content-type'];
+		const MIME_header = getMIME(type_header);
+
+		switch (MIME_header) {
 			case 'application/json':
-				args = await request.json();
+				args = JSON.parse(body);
 				break;
 			case 'application/x-www-form-urlencoded':
 				args = Object.fromEntries(
 					new URLSearchParams(
-						await request.text(),
+						body,
 					),
 				);
 				break;
 			case 'application/cbor':
-				args = decode(await request.arrayBuffer());
+				args = decode(body);
 				break;
 			default:
-				return 'UNSUPPORTED_CONTENT_TYPE';
+				return null;
 		}
 	}
+
 	return args;
 }
 
 export function parseAcceptHeader(header) {
-	const types = header.split(/\s*(;|,)\s*/);
-	if (types.some((type) => /.+\/(\*|json)/.test(type))) {
-		return 'json';
+	if (typeof header === 'string') {
+		for (const type of header.split(',')) {
+			switch (getMIME(type.trim())) {
+				case 'application/json':
+				case 'application/*':
+					return 'json';
+				case 'application/cbor':
+					return 'cbor';
+				// no default
+			}
+		}
 	}
-	if (types.some((type) => /.+\/(\*|cbor)/.test(type))) {
-		return 'cbor';
-	}
+
 	return 'json';
 }
 
@@ -51,5 +80,6 @@ export function parseResponseTo(format, body) {
 	if (format === 'cbor') {
 		return encode(body);
 	}
+	throw new Error('parseResponseTo: Unknown format - ' + format);
 }
 

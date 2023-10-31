@@ -39,7 +39,17 @@ export default class HyperAPIHttpDriver extends HyperAPIDriver {
 			}
 
 			const method = url.pathname.slice(path.length);
-			const args = parseArguments(request, url);
+			let args = {};
+
+			try {
+				args = await parseArguments(request, url);
+			}
+			catch (error) {
+				console.error(error);
+				response.writeHead(400);
+				response.end();
+				return;
+			}
 			const preffered_format = parseAcceptHeader(
 				request.headers.accept,
 			);
@@ -56,7 +66,7 @@ export default class HyperAPIHttpDriver extends HyperAPIDriver {
 			hyperApiRequest.set(
 				'ip',
 				new IP(
-					request.connection.remoteAddress,
+					request.socket.remoteAddress,
 				),
 			);
 
