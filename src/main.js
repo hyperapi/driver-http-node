@@ -2,9 +2,9 @@
 /* eslint-disable import/extensions */
 // @ts-ignore
 
+import HyperAPIError 		     from '@hyperapi/core/error';
 import HyperAPIDriver            from '@hyperapi/core/driver';
 import HyperAPIRequest           from '@hyperapi/core/request';
-import HyperAPIResponse          from '@hyperapi/core/response';
 import { HyperAPIInternalError } from '@hyperapi/core/api-errors';
 import { createServer }          from 'node:http';
 import IP                        from '@kirick/ip';
@@ -41,24 +41,34 @@ export default class HyperAPIHttpDriver extends HyperAPIDriver {
 			const method = url.pathname.slice(path.length);
 			let args = {};
 
-			try {
-				args = await parseArguments(request, url);
-			}
-			catch (error) {
-				console.error(error);
-				response.writeHead(400);
-				response.end();
-				return;
-			}
+			args = await parseArguments(request, url);
+
 			const preffered_format = parseAcceptHeader(
 				request.headers.accept,
 			);
 
-			if (args === 'UNSUPPORTED_CONTENT_TYPE') {
+			if (args === null) {
 				response.writeHead(415);
 				response.end();
 				return;
 			}
+			if (args instanceof HyperAPIError) {
+				response.writeHead(
+					400,
+					{
+						'Content-Type': 'application/' + preffered_format,
+					},
+				);
+				response.end(
+					parseResponseTo(
+						preffered_format,
+						args.getResponse(),
+					),
+				);
+				return;
+			}
+
+			// вот здесь
 
 			const hyperApiRequest = new HyperAPIRequest(method, args);
 			hyperApiRequest.set('request', request);
@@ -76,9 +86,7 @@ export default class HyperAPIHttpDriver extends HyperAPIDriver {
 				hyperAPIResponse.is_success === false
 				&& hyperAPIResponse.error.httpStatus === undefined
 			) {
-				const internal_error = new HyperAPIResponse(
-					new HyperAPIInternalError(),
-				);
+				const internal_error = new HyperAPIInternalError();
 
 				response.writeHead(
 					500,
@@ -101,6 +109,12 @@ export default class HyperAPIHttpDriver extends HyperAPIDriver {
 					'Content-Type': 'application/' + preffered_format,
 				},
 			);
+
+			if (request.method === 'HEAD') {
+				response.end();
+				return;
+			}
+
 			response.end(
 				parseResponseTo(
 					preffered_format,

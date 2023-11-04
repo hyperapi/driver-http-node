@@ -1,6 +1,8 @@
+/* eslint-disable import/extensions */
+/* eslint-disable import/no-unresolved */
 
 import { decode, encode } from 'cbor-x';
-
+import { HyperAPIInvalidParametersError } from '@hyperapi/core/api-errors';
 function getMIME(type) {
 	if (typeof type === 'string') {
 		const index = type.indexOf(';');
@@ -27,29 +29,36 @@ export async function parseArguments(request, url) {
 				chunks.push(chunk);
 			});
 			request.on('end', () => {
-				resolve(Buffer.concat(chunks));
+				resolve(Buffer.concat(chunks).toString());
 			});
 			request.on('error', reject);
 		});
 		const type_header = request.headers['content-type'];
 		const MIME_header = getMIME(type_header);
 
-		switch (MIME_header) {
-			case 'application/json':
-				args = JSON.parse(body);
-				break;
-			case 'application/x-www-form-urlencoded':
-				args = Object.fromEntries(
-					new URLSearchParams(
-						body,
-					),
-				);
-				break;
-			case 'application/cbor':
-				args = decode(body);
-				break;
-			default:
-				return null;
+		try {
+			switch (MIME_header) {
+				case 'application/json':
+					args = JSON.parse(body);
+					break;
+				case 'application/x-www-form-urlencoded':
+					console.log(body);
+					args = Object.fromEntries(
+						new URLSearchParams(
+							body,
+						),
+					);
+					break;
+				case 'application/cbor':
+					args = decode(body);
+					break;
+				default:
+					return null;
+			}
+		}
+		catch (error) {
+			console.error(error);
+			return new HyperAPIInvalidParametersError();
 		}
 	}
 
