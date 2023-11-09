@@ -64,7 +64,7 @@ export default class HyperAPIHttpDriver extends HyperAPIDriver {
 					);
 				}
 				else {
-					response.writeHead(400);
+					response.writeHead(500);
 					response.end();
 				}
 				return;
