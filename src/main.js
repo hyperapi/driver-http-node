@@ -41,34 +41,40 @@ export default class HyperAPIHttpDriver extends HyperAPIDriver {
 			const method = url.pathname.slice(path.length);
 			let args = {};
 
-			args = await parseArguments(request, url);
-
 			const preffered_format = parseAcceptHeader(
 				request.headers.accept,
 			);
+
+			try {
+				args = await parseArguments(request, url);
+			}
+			catch (error) {
+				if (error instanceof HyperAPIError) {
+					response.writeHead(
+						error.httpStatus ?? 400,
+						{
+							'Content-Type': 'application/' + preffered_format,
+						},
+					);
+					response.end(
+						parseResponseTo(
+							preffered_format,
+							error.getResponse(),
+						),
+					);
+				}
+				else {
+					response.writeHead(400);
+					response.end();
+				}
+				return;
+			}
 
 			if (args === null) {
 				response.writeHead(415);
 				response.end();
 				return;
 			}
-			if (args instanceof HyperAPIError) {
-				response.writeHead(
-					400,
-					{
-						'Content-Type': 'application/' + preffered_format,
-					},
-				);
-				response.end(
-					parseResponseTo(
-						preffered_format,
-						args.getResponse(),
-					),
-				);
-				return;
-			}
-
-			// вот здесь
 
 			const hyperApiRequest = new HyperAPIRequest(method, args);
 			hyperApiRequest.set('request', request);

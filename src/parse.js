@@ -36,29 +36,37 @@ export async function parseArguments(request, url) {
 		const type_header = request.headers['content-type'];
 		const MIME_header = getMIME(type_header);
 
-		try {
-			switch (MIME_header) {
-				case 'application/json':
+		switch (MIME_header) {
+			case 'application/json':
+				try {
 					args = JSON.parse(body);
-					break;
-				case 'application/x-www-form-urlencoded':
-					console.log(body);
+				}
+				catch {
+					throw new HyperAPIInvalidParametersError();
+				}
+				break;
+			case 'application/x-www-form-urlencoded':
+				try {
 					args = Object.fromEntries(
 						new URLSearchParams(
 							body,
 						),
 					);
-					break;
-				case 'application/cbor':
+				}
+				catch {
+					throw new HyperAPIInvalidParametersError();
+				}
+				break;
+			case 'application/cbor':
+				try {
 					args = decode(body);
-					break;
-				default:
-					return null;
-			}
-		}
-		catch (error) {
-			console.error(error);
-			return new HyperAPIInvalidParametersError();
+				}
+				catch {
+					throw new HyperAPIInvalidParametersError();
+				}
+				break;
+			default:
+				return null;
 		}
 	}
 
