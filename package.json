@@ -1,6 +1,6 @@
 {
 	"name": "@hyperapi/driver-node",
-	"version": "0.3.0-beta.1",
+	"version": "0.3.0-beta.2",
 	"description": "HyperAPI HTTP driver for Node.JS.",
 	"publishConfig": {
 		"access": "public"
