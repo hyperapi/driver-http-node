@@ -25,7 +25,7 @@
 	"devDependencies": {
 		"@kirick/eslint-config": "^0.1.30",
 		"@types/busboy": "^1.5.4",
-		"@types/node": "16.18",
+		"@types/node": "18",
 		"eslint": "9.10.0",
 		"formdata-node": "^6.0.3",
 		"node-fetch": "^3.3.2",
@@ -38,9 +38,9 @@
 		"build:ts": "rm -r dist/esm dist/types ; tsc",
 		"lint": "eslint . && tsc --skipLibCheck --noemit",
 		"publish:npm": "bun run build && bun run lint && bun run test && npm publish",
-		"test": "tsc -p tsconfig.test.json && bun run test:install && npm run test:run",
+		"test": "tsc -p tsconfig.test.json && bun run test:install && bun run test:run",
 		"test:install": "docker run --rm -it -w /app -v ./package.json:/app/package.json:ro -v ./bun.lockb:/app/bun.lockb:ro -v ./node_modules+bun:/app/node_modules oven/bun:1.1.26-slim bun install --frozen-lockfile",
-		"test:run": "set -e ; for VERSION in '16.17' '18' '22'; do docker run --rm -it -w /app -v ./package.json:/app/package.json:ro -v ./dist/vitest:/app/vitest:ro -v ./node_modules+bun:/app/node_modules node:$VERSION-slim npx vitest run --no-file-parallelism ; done"
+		"test:run": "set -e ; for VERSION in '16.17' '18' '22'; do docker run --rm -it -w /app -v ./package.json:/app/package.json:ro -v ./dist/vitest:/app/vitest:ro -v ./node_modules+bun:/app/node_modules --entrypoint 'npx' node:$VERSION-slim vitest run --no-file-parallelism ; done"
 	},
 	"repository": {
 		"type": "git",
