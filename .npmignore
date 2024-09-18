@@ -23,3 +23,6 @@ tsconfig.json
 # ignore IDE files
 .idea
 .nova
+
+# ignore additional node_modules
+node_modules*
