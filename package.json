@@ -39,8 +39,8 @@
 		"lint": "eslint . && tsc --skipLibCheck --noemit",
 		"publish:npm": "bun run build && bun run lint && bun run test && npm publish",
 		"test": "tsc -p tsconfig.test.json && bun run test:install && bun run test:run",
-		"test:install": "docker run --rm -it -w /app -v ./package.json:/app/package.json:ro -v ./bun.lockb:/app/bun.lockb:ro -v ./node_modules+bun:/app/node_modules oven/bun:1.1.26-slim bun install --frozen-lockfile",
-		"test:run": "set -e ; for VERSION in '16.17' '18' '22'; do docker run --rm -it -w /app -v ./package.json:/app/package.json:ro -v ./dist/vitest:/app/vitest:ro -v ./node_modules+bun:/app/node_modules --entrypoint 'npx' node:$VERSION-slim vitest run --no-file-parallelism ; done"
+		"test:install": "docker run --rm -w /app -v ./package.json:/app/package.json:ro -v ./bun.lockb:/app/bun.lockb:ro -v ./node_modules+bun:/app/node_modules oven/bun:1.1.26-slim bun install --frozen-lockfile",
+		"test:run": "set -e ; for VERSION in '16.17' '18' '22'; do docker run --rm -w /app -v ./package.json:/app/package.json:ro -v ./dist/vitest:/app/vitest:ro -v ./node_modules+bun:/app/node_modules --entrypoint 'npx' node:$VERSION-slim vitest run --no-file-parallelism ; done"
 	},
 	"repository": {
 		"type": "git",
