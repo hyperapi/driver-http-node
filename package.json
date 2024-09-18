@@ -1,0 +1,64 @@
+{
+	"name": "@hyperapi/driver-node",
+	"version": "0.3.0-beta.1",
+	"description": "HyperAPI HTTP driver for Node.JS.",
+	"publishConfig": {
+		"access": "public"
+	},
+	"type": "module",
+	"main": "dist/esm/main.js",
+	"types": "dist/esm/main.d.ts",
+	"exports": {
+		".": {
+			"import": "./dist/esm/main.js",
+			"require": "./dist/main.cjs"
+		}
+	},
+	"engines": {
+		"node": "^16.17.0 || >=18.0"
+	},
+	"dependencies": {
+		"@hyperapi/core": "^0.3.0-beta.3",
+		"@kirick/ip": "^0.1.1",
+		"busboy": "^1.6.0"
+	},
+	"devDependencies": {
+		"@kirick/eslint-config": "^0.1.30",
+		"@types/busboy": "^1.5.4",
+		"@types/node": "16.18",
+		"eslint": "9.10.0",
+		"formdata-node": "^6.0.3",
+		"node-fetch": "^3.3.2",
+		"typescript": "5.5.4",
+		"vitest": "2.1.1"
+	},
+	"scripts": {
+		"build": "bun run build:ts && bun run build:cjs",
+		"build:cjs": "bunx esbuild --bundle --platform=node --format=cjs --packages=external --outfile=dist/main.cjs src/main.ts",
+		"build:ts": "rm -r dist/esm dist/types ; tsc",
+		"lint": "eslint . && tsc --skipLibCheck --noemit",
+		"publish:npm": "bun run build && bun run lint && bun run test && npm publish",
+		"test": "tsc -p tsconfig.test.json && bun run test:install && npm run test:run",
+		"test:install": "docker run --rm -it -w /app -v ./package.json:/app/package.json:ro -v ./bun.lockb:/app/bun.lockb:ro -v ./node_modules+bun:/app/node_modules oven/bun:1.1.26-slim bun install --frozen-lockfile",
+		"test:run": "set -e ; for VERSION in '16.17' '18' '22'; do docker run --rm -it -w /app -v ./package.json:/app/package.json:ro -v ./dist/vitest:/app/vitest:ro -v ./node_modules+bun:/app/node_modules node:$VERSION-slim npx vitest run --no-file-parallelism ; done"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/hyperapi/driver-http-node.git"
+	},
+	"keywords": [
+		"hyperapi",
+		"api",
+		"driver",
+		"hyperapi-driver",
+		"http",
+		"node",
+		"nodejs"
+	],
+	"author": "Daniil Kirichenko (https://twitter.com/kirickme)",
+	"license": "MIT",
+	"bugs": {
+		"url": "https://github.com/hyperapi/driver-http-node/issues"
+	},
+	"homepage": "https://github.com/hyperapi/driver-http-node#readme"
+}

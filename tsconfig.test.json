@@ -1,0 +1,25 @@
+{
+	"compileOnSave": false,
+	"include": [
+		"src/",
+		"test/"
+	],
+	"exclude": [
+		"dist/",
+		"node_modules/"
+	],
+	"compilerOptions": {
+		"outDir": "dist/vitest",
+		"target": "esnext",
+		"module": "nodenext",
+		"esModuleInterop": true,
+		"allowSyntheticDefaultImports": true,
+		"lib": [
+			"ESNext",
+			"ES2021.String"
+		],
+		"skipLibCheck": true,
+		"strict": true,
+		"removeComments": false
+	}
+}
