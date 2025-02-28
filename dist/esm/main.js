@@ -98,6 +98,9 @@ export class HyperAPINodeDriver {
         if (hyperapi_response instanceof HyperAPIError) {
             throw hyperapi_response;
         }
+        if (hyperapi_response instanceof Response) {
+            throw new TypeError('Response is not supported in this driver');
+        }
         return {
             status: 200,
             headers: {
