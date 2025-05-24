@@ -1,7 +1,7 @@
 # HyperAPI HTTP Driver for Node.js
 
 [![npm version](https://img.shields.io/npm/v/@hyperapi/driver-node.svg)](https://www.npmjs.com/package/@hyperapi/driver-node)
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
+[![license](https://img.shields.io/npm/l/@hyperapi/driver-node.svg?color=blue)](https://github.com/hyperapi/driver-http-node/blob/main/LICENSE)
 
 HyperAPI HTTP driver for [Node.js](https://nodejs.org) built on the native `http` module.
 
@@ -167,3 +167,7 @@ export default function(
   };
 }
 ```
+
+## Contributing
+
+Issues and pull requests are welcome at [our GitHub repository](https://github.com/hyperapi/driver-http-node).
