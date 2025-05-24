@@ -19,7 +19,15 @@ const Blob = globalThis.Blob ?? BlobPolyfill;
 
 describe('args', () => {
 	test('GET', async () => {
-		const response = await fetch('http://localhost:18001/api/echo?name=world');
+		const response = await fetch(
+			'http://localhost:18001/api/echo?name=world',
+			{
+				method: 'GET',
+				headers: {
+					'x-test-header': 'test-value',
+				},
+			},
+		);
 
 		expect(response.status).toBe(200);
 		expect(response.headers.get('Content-Type')).toBe('application/json');
@@ -28,6 +36,7 @@ describe('args', () => {
 		expect(body).toStrictEqual({
 			method: 'ALL',
 			message: 'Hello, world!',
+			header_value: 'test-value',
 		});
 	});
 
@@ -68,6 +77,7 @@ describe('args', () => {
 			expect(body).toStrictEqual({
 				method: 'ALL',
 				message: 'Hello, foo!',
+				header_value: null,
 			});
 		});
 
@@ -89,6 +99,7 @@ describe('args', () => {
 			expect(body).toStrictEqual({
 				method: 'ALL',
 				message: 'Hello, bar bar!',
+				header_value: null,
 			});
 		});
 

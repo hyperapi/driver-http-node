@@ -102,7 +102,7 @@ var HyperAPIBodyUnknownError = class extends HyperAPIInvalidParametersError {
 * @returns - Arguments.
 */
 async function parseArguments(req, url, multipart_formdata_enabled) {
-	let args = {};
+	let args;
 	if (req.method === "GET" || req.method === "HEAD") args = Object.fromEntries(url.searchParams.entries());
 	else {
 		const type_header = req.headers["content-type"];
@@ -247,12 +247,15 @@ var HyperAPINodeDriver = class {
 		const hyperapi_args = await parseArguments(req, url, this.multipart_formdata_enabled);
 		const ip_string = req.socket.remoteAddress;
 		if (typeof ip_string !== "string") throw new TypeError("Remote address is not a string.");
+		const headers = new Headers();
+		for (const [key, value] of Object.entries(req.headers)) if (typeof value === "string") headers.set(key, value);
+		else if (Array.isArray(value)) for (const item of value) headers.append(key, item);
 		const hyperapi_response = await this.handler({
 			method: http_method,
 			path: hyperapi_method,
 			args: hyperapi_args,
 			url,
-			headers: req.headers,
+			headers,
 			ip: new IP(ip_string)
 		});
 		if (hyperapi_response instanceof HyperAPIError) throw hyperapi_response;

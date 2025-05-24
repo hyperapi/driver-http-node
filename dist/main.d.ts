@@ -1,14 +1,13 @@
 import { ServerOptions } from "node:http";
 import { HyperAPIDriver, HyperAPIDriverHandler, HyperAPIRequest } from "@hyperapi/core";
 import { IP } from "@kirick/ip";
+import { EmptyObject } from "type-fest";
 
 //#region src/request.d.ts
-interface HyperAPINodeRequest<A extends Record<string, unknown> = Omit<{
-  p: unknown;
-}, "p">> extends HyperAPIRequest<A> {
+interface HyperAPINodeRequest<A extends Record<string, unknown> = EmptyObject> extends HyperAPIRequest<A> {
   // request: Request;
   url: URL;
-  headers: Record<string, unknown>;
+  headers: Headers;
   ip: IP;
 }
 

@@ -7,5 +7,6 @@ export default function (request: HyperAPINodeRequest<{ name: string }>): HyperA
 	return {
 		method: 'ALL',
 		message: `Hello, ${request.args.name}!`,
+		header_value: request.headers.get('x-test-header'),
 	};
 }

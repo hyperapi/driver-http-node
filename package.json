@@ -21,7 +21,7 @@
 		"busboy": "1.6.0"
 	},
 	"peerDependencies": {
-		"@hyperapi/core": "github:hyperapi/core#8894dcfe65392c9a4111c4494945817bff9f1f52",
+		"@hyperapi/core": "github:hyperapi/core#200cfe5c666ee72caad8208a4c954de6cc83de19",
 		"@kirick/ip": "^0.1.1"
 	},
 	"devDependencies": {
@@ -34,6 +34,7 @@
 		"oxc-parser": "0.71.0",
 		"publint": "0.3.12",
 		"tsdown": "0.12.2",
+		"type-fest": "^4.41.0",
 		"typescript": "5.8.3",
 		"unplugin-unused": "0.5.0",
 		"vitest": "3.1.4"

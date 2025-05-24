@@ -59,7 +59,7 @@ export async function parseArguments(
 	url: URL,
 	multipart_formdata_enabled: boolean,
 ): Promise<RequestArgs> {
-	let args: RequestArgs = {};
+	let args: RequestArgs;
 
 	if (
 		req.method === 'GET'

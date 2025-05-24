@@ -148,12 +148,24 @@ export class HyperAPINodeDriver implements HyperAPIDriver<HyperAPINodeRequest<an
 			throw new TypeError('Remote address is not a string.');
 		}
 
+		const headers = new Headers();
+		for (const [ key, value ] of Object.entries(req.headers)) {
+			if (typeof value === 'string') {
+				headers.set(key, value);
+			}
+			else if (Array.isArray(value)) {
+				for (const item of value) {
+					headers.append(key, item);
+				}
+			}
+		}
+
 		const hyperapi_response = await this.handler({
 			method: http_method,
 			path: hyperapi_method,
 			args: hyperapi_args,
 			url: url as URL,
-			headers: req.headers,
+			headers,
 			ip: new IP(ip_string),
 		});
 
