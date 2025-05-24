@@ -6,7 +6,7 @@ import {
 } from '@hyperapi/core';
 
 class HyperAPILocalRateLimitError extends HyperAPIRateLimitError<undefined> {
-	httpHeaders = {
+	override httpHeaders = {
 		'Retry-After': '3600',
 	};
 }

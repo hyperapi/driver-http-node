@@ -1,31 +1,8 @@
-//#region rolldown:runtime
-var __create = Object.create;
-var __defProp = Object.defineProperty;
-var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
-var __getOwnPropNames = Object.getOwnPropertyNames;
-var __getProtoOf = Object.getPrototypeOf;
-var __hasOwnProp = Object.prototype.hasOwnProperty;
-var __copyProps = (to, from, except, desc) => {
-	if (from && typeof from === "object" || typeof from === "function") for (var keys = __getOwnPropNames(from), i = 0, n = keys.length, key; i < n; i++) {
-		key = keys[i];
-		if (!__hasOwnProp.call(to, key) && key !== except) __defProp(to, key, {
-			get: ((k) => from[k]).bind(null, key),
-			enumerable: !(desc = __getOwnPropDesc(from, key)) || desc.enumerable
-		});
-	}
-	return to;
-};
-var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__getProtoOf(mod)) : {}, __copyProps(isNodeMode || !mod || !mod.__esModule ? __defProp(target, "default", {
-	value: mod,
-	enumerable: true
-}) : target, mod));
-
-//#endregion
-const node_http = __toESM(require("node:http"));
-const __hyperapi_core = __toESM(require("@hyperapi/core"));
-const __kirick_ip = __toESM(require("@kirick/ip"));
-const busboy = __toESM(require("busboy"));
-const node_buffer = __toESM(require("node:buffer"));
+import { createServer } from "node:http";
+import { HyperAPIError, HyperAPIInvalidParametersError } from "@hyperapi/core";
+import { IP } from "@kirick/ip";
+import busboy from "busboy";
+import { Blob } from "node:buffer";
 
 //#region src/utils/is-record.ts
 /**
@@ -46,7 +23,7 @@ function isRecord(value) {
 */
 function parseFormData(req) {
 	return new Promise((resolve) => {
-		const bb = (0, busboy.default)({ headers: req.headers });
+		const bb = busboy({ headers: req.headers });
 		const form_data = {};
 		bb.on("file", (name, file, info) => {
 			const file_parts = [];
@@ -54,7 +31,7 @@ function parseFormData(req) {
 				file_parts.push(chunk);
 			});
 			file.on("end", () => {
-				form_data[name] = new node_buffer.Blob(file_parts, { type: info.mimeType });
+				form_data[name] = new Blob(file_parts, { type: info.mimeType });
 			});
 		});
 		bb.on("field", (name, value) => {
@@ -101,7 +78,7 @@ function getMIME(type) {
 	if (index !== -1) return type.slice(0, index).trim();
 	return type.trim();
 }
-var HyperAPIBodyInvalidError = class extends __hyperapi_core.HyperAPIInvalidParametersError {
+var HyperAPIBodyInvalidError = class extends HyperAPIInvalidParametersError {
 	data = { message: "Could not parse body" };
 	httpStatus = 400;
 	constructor(message) {
@@ -109,7 +86,7 @@ var HyperAPIBodyInvalidError = class extends __hyperapi_core.HyperAPIInvalidPara
 		if (message) this.data.message = message;
 	}
 };
-var HyperAPIBodyUnknownError = class extends __hyperapi_core.HyperAPIInvalidParametersError {
+var HyperAPIBodyUnknownError = class extends HyperAPIInvalidParametersError {
 	data = { message: "Unsupported body type" };
 	httpStatus = 415;
 	constructor(mime) {
@@ -148,14 +125,14 @@ async function parseArguments(req, url, multipart_formdata_enabled) {
 				try {
 					args = await parseFormData(req);
 				} catch {
-					throw new __hyperapi_core.HyperAPIInvalidParametersError();
+					throw new HyperAPIInvalidParametersError();
 				}
 				break;
 			case "application/x-www-form-urlencoded":
 				try {
 					args = Object.fromEntries(new URLSearchParams(await parseText(req)));
 				} catch {
-					throw new __hyperapi_core.HyperAPIInvalidParametersError();
+					throw new HyperAPIInvalidParametersError();
 				}
 				break;
 			default: throw new HyperAPIBodyUnknownError(type_mime);
@@ -232,12 +209,12 @@ var HyperAPINodeDriver = class {
 	*/
 	start(handler) {
 		this.handler = handler;
-		this.server = (0, node_http.createServer)(this.server_options, async (req, res) => {
+		this.server = createServer(this.server_options, async (req, res) => {
 			let response;
 			try {
 				response = await this.processRequest(req);
 			} catch (error) {
-				if (error instanceof __hyperapi_core.HyperAPIError) response = hyperApiErrorToResponse(error, isResponseBodyRequired(req.method));
+				if (error instanceof HyperAPIError) response = hyperApiErrorToResponse(error, isResponseBodyRequired(req.method));
 				else {
 					console.error("Unhandled error in @hyperapi/driver-node:");
 					console.error(error);
@@ -276,9 +253,9 @@ var HyperAPINodeDriver = class {
 			args: hyperapi_args,
 			url,
 			headers: req.headers,
-			ip: new __kirick_ip.IP(ip_string)
+			ip: new IP(ip_string)
 		});
-		if (hyperapi_response instanceof __hyperapi_core.HyperAPIError) throw hyperapi_response;
+		if (hyperapi_response instanceof HyperAPIError) throw hyperapi_response;
 		return {
 			status: 200,
 			headers: { "Content-Type": "application/json" },
@@ -288,4 +265,4 @@ var HyperAPINodeDriver = class {
 };
 
 //#endregion
-exports.HyperAPINodeDriver = HyperAPINodeDriver;
+export { HyperAPINodeDriver };

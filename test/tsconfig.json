@@ -1,18 +1,10 @@
 {
-	"compileOnSave": false,
+	"extends": "../tsconfig.json",
 	"compilerOptions": {
-		"outDir": "/dev/null",
-		"declaration": false,
-		"target": "esnext",
-		"module": "nodenext",
-		"esModuleInterop": true,
-		"allowSyntheticDefaultImports": true,
-		"lib": [
-			"ESNext",
-			"ES2021.String"
-		],
-		"skipLibCheck": true,
-		"strict": true,
-		"removeComments": false
-	}
+		"isolatedDeclarations": false
+	},
+	"include": [
+		"./**/*.ts",
+		"../src/**/*.test.ts"
+	]
 }

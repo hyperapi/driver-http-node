@@ -11,8 +11,8 @@ import {
 } from '@hyperapi/core';
 import { IP } from '@kirick/ip';
 import { parseArguments } from './utils/parse.js';
-import { type HyperAPINodeRequest } from './request.js';
-import { ResponseSchema } from './types.js';
+import type { HyperAPINodeRequest } from './request.js';
+import type { ResponseSchema } from './types.js';
 import { hyperApiErrorToResponse } from './utils/hyperapi-error.js';
 import {
 	isHttpMethodSupported,
@@ -59,7 +59,7 @@ export class HyperAPINodeDriver implements HyperAPIDriver<HyperAPINodeRequest<an
 	 * Starts the server.
 	 * @param handler - The handler to use.
 	 */
-	start(handler: HyperAPIDriverHandler<HyperAPINodeRequest>) {
+	start(handler: HyperAPIDriverHandler<HyperAPINodeRequest>): void {
 		this.handler = handler;
 		this.server = createServer(
 			this.server_options,
@@ -102,7 +102,7 @@ export class HyperAPINodeDriver implements HyperAPIDriver<HyperAPINodeRequest<an
 	}
 
 	/** Stops the server. */
-	stop() {
+	stop(): void {
 		this.server?.close();
 	}
 

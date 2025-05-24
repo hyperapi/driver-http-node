@@ -1,5 +1,5 @@
 import { HyperAPIError } from '@hyperapi/core';
-import { ResponseSchema } from '../types.js';
+import type { ResponseSchema } from '../types.js';
 
 /**
  * Converts a HyperAPIError to a Response.
