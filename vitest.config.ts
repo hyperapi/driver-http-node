@@ -1,4 +1,3 @@
-/* eslint-disable n/no-unpublished-import */
 /* eslint-disable no-restricted-exports */
 
 import { defineConfig } from 'vitest/config';
