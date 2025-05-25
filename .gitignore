@@ -1,5 +1,5 @@
-dist/vitest
-node_modules
 .DS_Store
 .env
 *.env
+dist/vitest
+node_modules

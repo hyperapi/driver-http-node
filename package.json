@@ -21,7 +21,7 @@
 		"busboy": "1.6.0"
 	},
 	"peerDependencies": {
-		"@hyperapi/core": "github:hyperapi/core#200cfe5c666ee72caad8208a4c954de6cc83de19",
+		"@hyperapi/core": "github:hyperapi/core#30dc86f06f4960f43a17b5cb63b6bd57740ad8be",
 		"@kirick/ip": "^0.1.1"
 	},
 	"devDependencies": {
@@ -31,7 +31,6 @@
 		"eslint": "9.10.0",
 		"formdata-node": "6.0.3",
 		"node-fetch": "^3.3.2",
-		"oxc-parser": "0.71.0",
 		"publint": "0.3.12",
 		"tsdown": "0.12.2",
 		"type-fest": "^4.41.0",
@@ -43,8 +42,8 @@
 		"build": "tsdown src/main.ts --publint --unused --dts --format esm --format cjs && rm dist/main.d.cts",
 		"check": "bun run build && bun run lint && bun run test",
 		"lint": "eslint . && tsc && (cd test && tsc)",
-		"test": "rm -r dist/vitest ; tsc -p tsconfig.test.json && npm run test:vitest ; rm -r dist/vitest",
-		"test:vitest": "vitest run --no-file-parallelism"
+		"test": "npm run test:vitest",
+		"test:vitest": "rm -r dist/vitest ; tsc -p tsconfig.test.json && vitest run --no-file-parallelism ; rm -r dist/vitest"
 	},
 	"repository": {
 		"type": "git",
