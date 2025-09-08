@@ -1,16 +1,9 @@
-/* eslint-disable n/no-unsupported-features/node-builtins */
-
 import {
-	FormData as FormDataPolyfill,
 	Blob as BlobPolyfill,
+	FormData as FormDataPolyfill,
 } from 'formdata-node';
 import fetchPolyfill from 'node-fetch';
-// import { Blob } from 'node:buffer';
-import {
-	describe,
-	expect,
-	test,
-} from 'vitest';
+import { describe, expect, test } from 'vitest';
 import '../test/setup.js';
 
 const fetch = globalThis.fetch ?? fetchPolyfill;
@@ -19,15 +12,12 @@ const Blob = globalThis.Blob ?? BlobPolyfill;
 
 describe('args', () => {
 	test('GET', async () => {
-		const response = await fetch(
-			'http://localhost:18001/api/echo?name=world',
-			{
-				method: 'GET',
-				headers: {
-					'x-test-header': 'test-value',
-				},
+		const response = await fetch('http://localhost:18001/api/echo?name=world', {
+			method: 'GET',
+			headers: {
+				'x-test-header': 'test-value',
 			},
-		);
+		});
 
 		expect(response.status).toBe(200);
 		expect(response.headers.get('Content-Type')).toBe('application/json');
@@ -41,12 +31,9 @@ describe('args', () => {
 	});
 
 	test('HEAD', async () => {
-		const response = await fetch(
-			'http://localhost:18001/api/echo?name=world',
-			{
-				method: 'HEAD',
-			},
-		);
+		const response = await fetch('http://localhost:18001/api/echo?name=world', {
+			method: 'HEAD',
+		});
 
 		expect(response.status).toBe(200);
 		expect(response.headers.get('Content-Type')).toBe('application/json');
@@ -57,18 +44,15 @@ describe('args', () => {
 
 	describe('POST', () => {
 		test('JSON', async () => {
-			const response = await fetch(
-				'http://localhost:18001/api/echo',
-				{
-					method: 'POST',
-					headers: {
-						'Content-Type': 'application/json',
-					},
-					body: JSON.stringify({
-						name: 'foo',
-					}),
+			const response = await fetch('http://localhost:18001/api/echo', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
 				},
-			);
+				body: JSON.stringify({
+					name: 'foo',
+				}),
+			});
 
 			expect(response.status).toBe(200);
 			expect(response.headers.get('Content-Type')).toBe('application/json');
@@ -82,15 +66,12 @@ describe('args', () => {
 		});
 
 		test('form', async () => {
-			const response = await fetch(
-				'http://localhost:18001/api/echo',
-				{
-					method: 'POST',
-					body: new URLSearchParams({
-						name: 'bar bar',
-					}),
-				},
-			);
+			const response = await fetch('http://localhost:18001/api/echo', {
+				method: 'POST',
+				body: new URLSearchParams({
+					name: 'bar bar',
+				}),
+			});
 
 			expect(response.status).toBe(200);
 			expect(response.headers.get('Content-Type')).toBe('application/json');
@@ -105,21 +86,12 @@ describe('args', () => {
 
 		test('multipart', async () => {
 			const form_data = new FormData();
-			form_data.append(
-				'name',
-				new Blob(
-					[ 'baz' ],
-					{ type: 'text/plain' },
-				),
-			);
+			form_data.append('name', new Blob(['baz'], { type: 'text/plain' }));
 
-			const response = await fetch(
-				'http://localhost:18002/api/echo-file',
-				{
-					method: 'POST',
-					body: form_data,
-				},
-			);
+			const response = await fetch('http://localhost:18002/api/echo-file', {
+				method: 'POST',
+				body: form_data,
+			});
 
 			expect(response.status).toBe(200);
 			expect(response.headers.get('Content-Type')).toBe('application/json');
@@ -169,16 +141,13 @@ describe('errors', () => {
 
 	describe('invalid body', () => {
 		test('malformed JSON', async () => {
-			const response = await fetch(
-				'http://localhost:18001/api/echo',
-				{
-					method: 'POST',
-					headers: {
-						'Content-Type': 'application/json',
-					},
-					body: '{',
+			const response = await fetch('http://localhost:18001/api/echo', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
 				},
-			);
+				body: '{',
+			});
 
 			expect(response.status).toBe(400);
 			expect(response.headers.get('Content-Type')).toBe('application/json');
@@ -194,16 +163,13 @@ describe('errors', () => {
 		});
 
 		test('JSON array', async () => {
-			const response = await fetch(
-				'http://localhost:18001/api/echo',
-				{
-					method: 'POST',
-					headers: {
-						'Content-Type': 'application/json',
-					},
-					body: '[1]',
+			const response = await fetch('http://localhost:18001/api/echo', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
 				},
-			);
+				body: '[1]',
+			});
 
 			expect(response.status).toBe(400);
 			expect(response.headers.get('Content-Type')).toBe('application/json');
@@ -222,21 +188,12 @@ describe('errors', () => {
 
 		test('multipart disabled', async () => {
 			const form_data = new FormData();
-			form_data.append(
-				'name',
-				new Blob(
-					[ 'baz' ],
-					{ type: 'text/plain' },
-				),
-			);
+			form_data.append('name', new Blob(['baz'], { type: 'text/plain' }));
 
-			const response = await fetch(
-				'http://localhost:18001/api/echo-file',
-				{
-					method: 'POST',
-					body: form_data,
-				},
-			);
+			const response = await fetch('http://localhost:18001/api/echo-file', {
+				method: 'POST',
+				body: form_data,
+			});
 
 			expect(response.status).toBe(415);
 			expect(response.headers.get('Content-Type')).toBe('application/json');

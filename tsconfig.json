@@ -11,16 +11,10 @@
 		"noImplicitOverride": true,
 		"module": "preserve",
 		"noEmit": true,
-		"lib": [
-			"es2022"
-		],
+		"lib": ["es2022"],
 		"declaration": true,
 		"isolatedDeclarations": true
 	},
-	"include": [
-		"src/"
-	],
-	"exclude": [
-		"**/*.test.ts"
-	]
+	"include": ["src/"],
+	"exclude": ["**/*.test.ts"]
 }

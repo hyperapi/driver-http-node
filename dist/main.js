@@ -1,9 +1,49 @@
 import { createServer } from "node:http";
 import { HyperAPIError, HyperAPIInvalidParametersError } from "@hyperapi/core";
 import { IP } from "@kirick/ip";
-import busboy from "busboy";
 import { Blob } from "node:buffer";
+import busboy from "busboy";
 
+//#region src/utils/http.ts
+/**
+* Checks if the response body is required for the given HTTP method.
+* @param http_method The HTTP method to check.
+* @returns -
+*/
+function isHttpMethodSupported(http_method) {
+	return http_method === "GET" || http_method === "POST" || http_method === "PUT" || http_method === "PATCH" || http_method === "DELETE" || http_method === "HEAD" || http_method === "OPTIONS";
+}
+/**
+* Checks if the response body is required for the given HTTP method.
+* @param http_method The HTTP method to check.
+* @returns -
+*/
+function isResponseBodyRequired(http_method) {
+	return http_method !== "HEAD" && http_method !== "OPTIONS";
+}
+
+//#endregion
+//#region src/utils/hyperapi-error.ts
+/**
+* Converts a HyperAPIError to a Response.
+* @param error - The error to convert.
+* @param add_body - Whether to add the response body.
+* @returns -
+*/
+function hyperApiErrorToResponse(error, add_body) {
+	if (typeof error.httpStatus !== "number") console.warn(`No HTTP status code provided for error ${error.name}, using 500.`);
+	const headers = { "Content-Type": "application/json" };
+	if (error.httpHeaders) for (const [header, value] of Object.entries(error.httpHeaders)) headers[header] = value;
+	let body;
+	if (add_body) body = JSON.stringify(error.getResponse());
+	return {
+		status: error.httpStatus ?? 500,
+		headers,
+		body
+	};
+}
+
+//#endregion
 //#region src/utils/is-record.ts
 /**
 * Check if a value is a record.
@@ -139,46 +179,6 @@ async function parseArguments(req, url, multipart_formdata_enabled) {
 		}
 	}
 	return args;
-}
-
-//#endregion
-//#region src/utils/hyperapi-error.ts
-/**
-* Converts a HyperAPIError to a Response.
-* @param error - The error to convert.
-* @param add_body - Whether to add the response body.
-* @returns -
-*/
-function hyperApiErrorToResponse(error, add_body) {
-	if (typeof error.httpStatus !== "number") console.warn(`No HTTP status code provided for error ${error.name}, using 500.`);
-	const headers = { "Content-Type": "application/json" };
-	if (error.httpHeaders) for (const [header, value] of Object.entries(error.httpHeaders)) headers[header] = value;
-	let body;
-	if (add_body) body = JSON.stringify(error.getResponse());
-	return {
-		status: error.httpStatus ?? 500,
-		headers,
-		body
-	};
-}
-
-//#endregion
-//#region src/utils/http.ts
-/**
-* Checks if the response body is required for the given HTTP method.
-* @param http_method The HTTP method to check.
-* @returns -
-*/
-function isHttpMethodSupported(http_method) {
-	return http_method === "GET" || http_method === "POST" || http_method === "PUT" || http_method === "PATCH" || http_method === "DELETE" || http_method === "HEAD" || http_method === "OPTIONS";
-}
-/**
-* Checks if the response body is required for the given HTTP method.
-* @param http_method The HTTP method to check.
-* @returns -
-*/
-function isResponseBodyRequired(http_method) {
-	return http_method !== "HEAD" && http_method !== "OPTIONS";
 }
 
 //#endregion

@@ -13,24 +13,24 @@ export function hyperApiErrorToResponse(
 	add_body: boolean,
 ): ResponseSchema {
 	if (typeof error.httpStatus !== 'number') {
-		// eslint-disable-next-line no-console
-		console.warn(`No HTTP status code provided for error ${error.name}, using 500.`);
+		// oxlint-disable-next-line no-console
+		console.warn(
+			`No HTTP status code provided for error ${error.name}, using 500.`,
+		);
 	}
 
 	const headers: ResponseSchema['headers'] = {
 		'Content-Type': 'application/json',
 	};
 	if (error.httpHeaders) {
-		for (const [ header, value ] of Object.entries(error.httpHeaders)) {
+		for (const [header, value] of Object.entries(error.httpHeaders)) {
 			headers[header] = value;
 		}
 	}
 
 	let body;
 	if (add_body) {
-		body = JSON.stringify(
-			error.getResponse(),
-		);
+		body = JSON.stringify(error.getResponse());
 	}
 
 	return {

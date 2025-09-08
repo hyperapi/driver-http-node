@@ -21,12 +21,57 @@ var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__ge
 }) : target, mod));
 
 //#endregion
-const node_http = __toESM(require("node:http"));
-const __hyperapi_core = __toESM(require("@hyperapi/core"));
-const __kirick_ip = __toESM(require("@kirick/ip"));
-const busboy = __toESM(require("busboy"));
-const node_buffer = __toESM(require("node:buffer"));
+let node_http = require("node:http");
+node_http = __toESM(node_http);
+let __hyperapi_core = require("@hyperapi/core");
+__hyperapi_core = __toESM(__hyperapi_core);
+let __kirick_ip = require("@kirick/ip");
+__kirick_ip = __toESM(__kirick_ip);
+let node_buffer = require("node:buffer");
+node_buffer = __toESM(node_buffer);
+let busboy = require("busboy");
+busboy = __toESM(busboy);
 
+//#region src/utils/http.ts
+/**
+* Checks if the response body is required for the given HTTP method.
+* @param http_method The HTTP method to check.
+* @returns -
+*/
+function isHttpMethodSupported(http_method) {
+	return http_method === "GET" || http_method === "POST" || http_method === "PUT" || http_method === "PATCH" || http_method === "DELETE" || http_method === "HEAD" || http_method === "OPTIONS";
+}
+/**
+* Checks if the response body is required for the given HTTP method.
+* @param http_method The HTTP method to check.
+* @returns -
+*/
+function isResponseBodyRequired(http_method) {
+	return http_method !== "HEAD" && http_method !== "OPTIONS";
+}
+
+//#endregion
+//#region src/utils/hyperapi-error.ts
+/**
+* Converts a HyperAPIError to a Response.
+* @param error - The error to convert.
+* @param add_body - Whether to add the response body.
+* @returns -
+*/
+function hyperApiErrorToResponse(error, add_body) {
+	if (typeof error.httpStatus !== "number") console.warn(`No HTTP status code provided for error ${error.name}, using 500.`);
+	const headers = { "Content-Type": "application/json" };
+	if (error.httpHeaders) for (const [header, value] of Object.entries(error.httpHeaders)) headers[header] = value;
+	let body;
+	if (add_body) body = JSON.stringify(error.getResponse());
+	return {
+		status: error.httpStatus ?? 500,
+		headers,
+		body
+	};
+}
+
+//#endregion
 //#region src/utils/is-record.ts
 /**
 * Check if a value is a record.
@@ -162,46 +207,6 @@ async function parseArguments(req, url, multipart_formdata_enabled) {
 		}
 	}
 	return args;
-}
-
-//#endregion
-//#region src/utils/hyperapi-error.ts
-/**
-* Converts a HyperAPIError to a Response.
-* @param error - The error to convert.
-* @param add_body - Whether to add the response body.
-* @returns -
-*/
-function hyperApiErrorToResponse(error, add_body) {
-	if (typeof error.httpStatus !== "number") console.warn(`No HTTP status code provided for error ${error.name}, using 500.`);
-	const headers = { "Content-Type": "application/json" };
-	if (error.httpHeaders) for (const [header, value] of Object.entries(error.httpHeaders)) headers[header] = value;
-	let body;
-	if (add_body) body = JSON.stringify(error.getResponse());
-	return {
-		status: error.httpStatus ?? 500,
-		headers,
-		body
-	};
-}
-
-//#endregion
-//#region src/utils/http.ts
-/**
-* Checks if the response body is required for the given HTTP method.
-* @param http_method The HTTP method to check.
-* @returns -
-*/
-function isHttpMethodSupported(http_method) {
-	return http_method === "GET" || http_method === "POST" || http_method === "PUT" || http_method === "PATCH" || http_method === "DELETE" || http_method === "HEAD" || http_method === "OPTIONS";
-}
-/**
-* Checks if the response body is required for the given HTTP method.
-* @param http_method The HTTP method to check.
-* @returns -
-*/
-function isResponseBodyRequired(http_method) {
-	return http_method !== "HEAD" && http_method !== "OPTIONS";
 }
 
 //#endregion

@@ -5,19 +5,16 @@ import {
 	type ServerOptions,
 } from 'node:http';
 import {
-	HyperAPIError,
 	type HyperAPIDriver,
 	type HyperAPIDriverHandler,
+	HyperAPIError,
 } from '@hyperapi/core';
 import { IP } from '@kirick/ip';
-import { parseArguments } from './utils/parse.js';
 import type { HyperAPINodeRequest } from './request.js';
 import type { ResponseSchema } from './types.js';
+import { isHttpMethodSupported, isResponseBodyRequired } from './utils/http.js';
 import { hyperApiErrorToResponse } from './utils/hyperapi-error.js';
-import {
-	isHttpMethodSupported,
-	isResponseBodyRequired,
-} from './utils/http.js';
+import { parseArguments } from './utils/parse.js';
 
 interface Config {
 	port: number;
@@ -26,10 +23,13 @@ interface Config {
 	options?: ServerOptions;
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export class HyperAPINodeDriver implements HyperAPIDriver<HyperAPINodeRequest<any>> {
+export class HyperAPINodeDriver
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	private handler: HyperAPIDriverHandler<HyperAPINodeRequest<any>> | null = null;
+	implements HyperAPIDriver<HyperAPINodeRequest<any>>
+{
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	private handler: HyperAPIDriverHandler<HyperAPINodeRequest<any>> | null =
+		null;
 	private port: number;
 	private path: string;
 	private multipart_formdata_enabled: boolean;
@@ -61,43 +61,35 @@ export class HyperAPINodeDriver implements HyperAPIDriver<HyperAPINodeRequest<an
 	 */
 	start(handler: HyperAPIDriverHandler<HyperAPINodeRequest>): void {
 		this.handler = handler;
-		this.server = createServer(
-			this.server_options,
-			async (req, res) => {
-				let response: ResponseSchema;
+		this.server = createServer(this.server_options, async (req, res) => {
+			let response: ResponseSchema;
 
-				try {
-					response = await this.processRequest(req);
+			try {
+				response = await this.processRequest(req);
+			} catch (error) {
+				if (error instanceof HyperAPIError) {
+					response = hyperApiErrorToResponse(
+						error,
+						isResponseBodyRequired(req.method),
+					);
+				} else {
+					// oxlint-disable-next-line no-console
+					console.error('Unhandled error in @hyperapi/driver-node:');
+					// oxlint-disable-next-line no-console
+					console.error(error);
+
+					response = { status: 500 };
 				}
-				catch (error) {
-					if (error instanceof HyperAPIError) {
-						response = hyperApiErrorToResponse(
-							error,
-							isResponseBodyRequired(req.method),
-						);
-					}
-					else {
-						// eslint-disable-next-line no-console
-						console.error('Unhandled error in @hyperapi/driver-node:');
-						// eslint-disable-next-line no-console
-						console.error(error);
+			}
 
-						response = { status: 500 };
-					}
-				}
+			res.writeHead(response.status, response.headers ?? {});
 
-				res.writeHead(
-					response.status,
-					response.headers ?? {},
-				);
+			if (response.body !== undefined) {
+				res.write(response.body);
+			}
 
-				if (response.body !== undefined) {
-					res.write(response.body);
-				}
-
-				res.end();
-			},
-		);
+			res.end();
+		});
 		this.server.listen(this.port);
 	}
 
@@ -125,17 +117,12 @@ export class HyperAPINodeDriver implements HyperAPIDriver<HyperAPINodeRequest<an
 			throw new TypeError('Request URL is not a string.');
 		}
 
-		const url = new URL(
-			req.url,
-			`http://${req.headers.host ?? 'unknown'}`,
-		);
+		const url = new URL(req.url, `http://${req.headers.host ?? 'unknown'}`);
 		if (url.pathname.startsWith(this.path) !== true) {
 			return { status: 404 };
 		}
 
-		const hyperapi_method = url.pathname.slice(
-			this.path.length,
-		);
+		const hyperapi_method = url.pathname.slice(this.path.length);
 
 		const hyperapi_args = await parseArguments(
 			req,
@@ -149,11 +136,10 @@ export class HyperAPINodeDriver implements HyperAPIDriver<HyperAPINodeRequest<an
 		}
 
 		const headers = new Headers();
-		for (const [ key, value ] of Object.entries(req.headers)) {
+		for (const [key, value] of Object.entries(req.headers)) {
 			if (typeof value === 'string') {
 				headers.set(key, value);
-			}
-			else if (Array.isArray(value)) {
+			} else if (Array.isArray(value)) {
 				for (const item of value) {
 					headers.append(key, item);
 				}
