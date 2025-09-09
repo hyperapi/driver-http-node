@@ -23,7 +23,7 @@
         "vitest": "3.2.4",
       },
       "peerDependencies": {
-        "@hyperapi/core": "github:hyperapi/core#2b7ad6c0f24ae1f84f31702e349ce3c6b77e475c",
+        "@hyperapi/core": "github:hyperapi/core#3d1898caa28e0cbc55c978f33bd9edf5a836337a",
         "@kirick/ip": "^0.1.1",
       },
     },
@@ -137,7 +137,7 @@
 
     "@humanwhocodes/retry": ["@humanwhocodes/retry@0.4.3", "", {}, "sha512-bV0Tgo9K4hfPCek+aMAn81RppFKv2ySDQeMoSZuvTASywNTnVJCArCZE2FWqpvIatKu7VMRLWlR1EazvVhDyhQ=="],
 
-    "@hyperapi/core": ["@hyperapi/core@github:hyperapi/core#2b7ad6c", { "dependencies": { "itty-router": "5.0.22" } }, "hyperapi-core-2b7ad6c"],
+    "@hyperapi/core": ["@hyperapi/core@github:hyperapi/core#3d1898c", { "dependencies": { "itty-router": "5.0.22" } }, "hyperapi-core-3d1898c"],
 
     "@jridgewell/gen-mapping": ["@jridgewell/gen-mapping@0.3.13", "", { "dependencies": { "@jridgewell/sourcemap-codec": "^1.5.0", "@jridgewell/trace-mapping": "^0.3.24" } }, "sha512-2kkt/7niJ6MgEPxF0bYdQ6etZaA+fQvDcLKckhy1yIQOzaoKjBBjSj63/aLVjYE3qhRt5dvM+uUyfCg6UKCBbA=="],
 
