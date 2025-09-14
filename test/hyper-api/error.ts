@@ -1,6 +1,5 @@
-/* eslint-disable jsdoc/require-jsdoc */
-
-import { HyperAPIRateLimitError, type HyperAPIResponse } from '@hyperapi/core';
+import { HyperAPIRateLimitError } from '@hyperapi/core';
+import { hyperApi } from '../setup.js';
 
 class HyperAPILocalRateLimitError extends HyperAPIRateLimitError<undefined> {
 	override httpHeaders = {
@@ -8,6 +7,6 @@ class HyperAPILocalRateLimitError extends HyperAPIRateLimitError<undefined> {
 	};
 }
 
-export default function (): HyperAPIResponse {
+export default hyperApi.module().action(() => {
 	throw new HyperAPILocalRateLimitError();
-}
+});

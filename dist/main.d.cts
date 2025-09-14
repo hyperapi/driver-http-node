@@ -1,10 +1,9 @@
 import { ServerOptions } from "node:http";
-import { HyperAPIDriver, HyperAPIDriverHandler, HyperAPIRequest } from "@hyperapi/core";
+import { BaseRecord, EmptyObject, HyperAPIDriver, HyperAPIRequest } from "@hyperapi/core/dev";
 import { IP } from "@kirick/ip";
-import { EmptyObject } from "type-fest";
 
 //#region src/request.d.ts
-interface HyperAPINodeRequest<A extends Record<string, unknown> = EmptyObject> extends HyperAPIRequest<A> {
+interface HyperAPINodeRequest<A extends BaseRecord = EmptyObject> extends HyperAPIRequest<A> {
   url: URL;
   headers: Headers;
   ip: IP;
@@ -17,8 +16,7 @@ interface Config {
   multipart_formdata_enabled?: boolean;
   options?: ServerOptions;
 }
-declare class HyperAPINodeDriver implements HyperAPIDriver<HyperAPINodeRequest<any>> {
-  private handler;
+declare class HyperAPINodeDriver extends HyperAPIDriver<HyperAPINodeRequest> {
   private port;
   private path;
   private multipart_formdata_enabled;
@@ -38,18 +36,13 @@ declare class HyperAPINodeDriver implements HyperAPIDriver<HyperAPINodeRequest<a
     options
   }: Config);
   /**
-  * Starts the server.
-  * @param handler - The handler to use.
-  */
-  start(handler: HyperAPIDriverHandler<HyperAPINodeRequest>): void;
-  /** Stops the server. */
-  stop(): void;
-  /**
   * Handles the HTTP request.
   * @param req - NodeJS request.
   * @returns -
   */
   private processRequest;
+  /** Stops the server. */
+  destroy(): void;
 }
 //#endregion
 export { HyperAPINodeDriver, type HyperAPINodeRequest };

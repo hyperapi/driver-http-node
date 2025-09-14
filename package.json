@@ -1,6 +1,6 @@
 {
 	"name": "@hyperapi/driver-node",
-	"version": "0.3.0-dev",
+	"version": "0.5.0-dev",
 	"description": "HyperAPI HTTP driver for Node.JS.",
 	"publishConfig": {
 		"access": "public"
@@ -24,7 +24,7 @@
 		"busboy": "1.6.0"
 	},
 	"peerDependencies": {
-		"@hyperapi/core": "github:hyperapi/core#3d1898caa28e0cbc55c978f33bd9edf5a836337a",
+		"@hyperapi/core": "github:hyperapi/core#5b3d7425be5b8526055aceeb4475a48f430d1736",
 		"@kirick/ip": "^0.1.1"
 	},
 	"devDependencies": {
@@ -33,14 +33,12 @@
 		"@types/busboy": "^1.5.4",
 		"@types/node": "^20",
 		"eslint": "9.27.0",
-		"formdata-node": "6.0.3",
-		"node-fetch": "3.3.2",
 		"oxlint": "1.3.0",
 		"publint": "0.3.12",
 		"tsdown": "0.14.2",
-		"type-fest": "4.41.0",
 		"typescript": "5.9.2",
 		"unplugin-unused": "0.5.2",
+		"valibot": "1.1.0",
 		"vitest": "3.2.4"
 	},
 	"scripts": {
@@ -48,7 +46,8 @@
 		"check": "bun run lint && bun run build && bun run test",
 		"lint": "biome format && oxlint && eslint . && tsc && (cd test && tsc)",
 		"test": "npm run test:vitest",
-		"test:vitest": "rm -r dist/vitest ; tsc -p tsconfig.test.json && vitest run --no-file-parallelism ; rm -r dist/vitest"
+		"test:vitest": "rm -r dist/vitest ; tsc -p tsconfig.test.json && vitest run --no-file-parallelism ; rm -r dist/vitest",
+		"# test:vitest": "vitest run --no-file-parallelism"
 	},
 	"repository": {
 		"type": "git",

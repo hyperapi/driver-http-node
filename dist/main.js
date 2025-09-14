@@ -1,5 +1,6 @@
 import { createServer } from "node:http";
 import { HyperAPIError, HyperAPIInvalidParametersError } from "@hyperapi/core";
+import { HyperAPIDriver, isRecord } from "@hyperapi/core/dev";
 import { IP } from "@kirick/ip";
 import { Blob } from "node:buffer";
 import busboy from "busboy";
@@ -41,17 +42,6 @@ function hyperApiErrorToResponse(error, add_body) {
 		headers,
 		body
 	};
-}
-
-//#endregion
-//#region src/utils/is-record.ts
-/**
-* Check if a value is a record.
-* @param value -
-* @returns -
-*/
-function isRecord(value) {
-	return typeof value === "object" && value !== null && !Array.isArray(value) && value.constructor === Object && Object.prototype.toString.call(value) === "[object Object]";
 }
 
 //#endregion
@@ -183,12 +173,11 @@ async function parseArguments(req, url, multipart_formdata_enabled) {
 
 //#endregion
 //#region src/main.ts
-var HyperAPINodeDriver = class {
-	handler = null;
+var HyperAPINodeDriver = class extends HyperAPIDriver {
 	port;
 	path;
 	multipart_formdata_enabled;
-	server = null;
+	server;
 	server_options;
 	/**
 	* @param options -
@@ -198,17 +187,11 @@ var HyperAPINodeDriver = class {
 	* @param [options.options] - NodeJS server options.
 	*/
 	constructor({ port, path = "/api/", multipart_formdata_enabled = false, options = {} }) {
+		super();
 		this.port = port;
 		this.path = path;
 		this.multipart_formdata_enabled = multipart_formdata_enabled;
 		this.server_options = options;
-	}
-	/**
-	* Starts the server.
-	* @param handler - The handler to use.
-	*/
-	start(handler) {
-		this.handler = handler;
 		this.server = createServer(this.server_options, async (req, res) => {
 			let response;
 			try {
@@ -227,17 +210,12 @@ var HyperAPINodeDriver = class {
 		});
 		this.server.listen(this.port);
 	}
-	/** Stops the server. */
-	stop() {
-		this.server?.close();
-	}
 	/**
 	* Handles the HTTP request.
 	* @param req - NodeJS request.
 	* @returns -
 	*/
 	async processRequest(req) {
-		if (!this.handler) throw new Error("No handler available.");
 		const http_method = req.method;
 		if (isHttpMethodSupported(http_method) !== true) return { status: 405 };
 		if (typeof req.url !== "string") throw new TypeError("Request URL is not a string.");
@@ -250,7 +228,7 @@ var HyperAPINodeDriver = class {
 		const headers = new Headers();
 		for (const [key, value] of Object.entries(req.headers)) if (typeof value === "string") headers.set(key, value);
 		else if (Array.isArray(value)) for (const item of value) headers.append(key, item);
-		const hyperapi_response = await this.handler({
+		const hyperapi_response = await this.emitRequest({
 			method: http_method,
 			path: hyperapi_method,
 			args: hyperapi_args,
@@ -264,6 +242,11 @@ var HyperAPINodeDriver = class {
 			headers: { "Content-Type": "application/json" },
 			body: isResponseBodyRequired(http_method) ? JSON.stringify(hyperapi_response) : void 0
 		};
+	}
+	/** Stops the server. */
+	destroy() {
+		this.server?.close();
+		super.destroy();
 	}
 };
 

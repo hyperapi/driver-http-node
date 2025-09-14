@@ -1,14 +1,5 @@
-import {
-	Blob as BlobPolyfill,
-	FormData as FormDataPolyfill,
-} from 'formdata-node';
-import fetchPolyfill from 'node-fetch';
 import { describe, expect, test } from 'vitest';
 import '../test/setup.js';
-
-const fetch = globalThis.fetch ?? fetchPolyfill;
-const FormData = globalThis.FormData ?? FormDataPolyfill;
-const Blob = globalThis.Blob ?? BlobPolyfill;
 
 describe('args', () => {
 	test('GET', async () => {
@@ -86,7 +77,7 @@ describe('args', () => {
 
 		test('multipart', async () => {
 			const form_data = new FormData();
-			form_data.append('name', new Blob(['baz'], { type: 'text/plain' }));
+			form_data.append('file', new Blob(['baz'], { type: 'text/plain' }));
 
 			const response = await fetch('http://localhost:18002/api/echo-file', {
 				method: 'POST',
@@ -102,6 +93,24 @@ describe('args', () => {
 				message: 'Hello, baz!',
 			});
 		});
+
+		// test('response', async () => {
+		// 	const response = await fetch('http://localhost:18002/api/echo-response', {
+		// 		method: 'POST',
+		// 		headers: {
+		// 			'Content-Type': 'application/json',
+		// 		},
+		// 		body: JSON.stringify({
+		// 			name: 'foo',
+		// 		}),
+		// 	});
+
+		// 	expect(response.status).toBe(200);
+		// 	expect(response.headers.get('Content-Type')).toBe('text/plain');
+
+		// 	const body = await response.text();
+		// 	expect(body).toEqual('Hello, foo!');
+		// });
 	});
 });
 

@@ -1,6 +1,6 @@
 import { IncomingMessage } from 'node:http';
 import { HyperAPIInvalidParametersError } from '@hyperapi/core';
-import { isRecord } from './is-record.js';
+import { isRecord } from '@hyperapi/core/dev';
 import { parseFormData } from './parse/form-data.js';
 import { parseText } from './parse/text.js';
 

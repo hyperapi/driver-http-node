@@ -4,11 +4,8 @@ import {
 	type Server,
 	type ServerOptions,
 } from 'node:http';
-import {
-	type HyperAPIDriver,
-	type HyperAPIDriverHandler,
-	HyperAPIError,
-} from '@hyperapi/core';
+import { HyperAPIError } from '@hyperapi/core';
+import { HyperAPIDriver } from '@hyperapi/core/dev';
 import { IP } from '@kirick/ip';
 import type { HyperAPINodeRequest } from './request.js';
 import type { ResponseSchema } from './types.js';
@@ -23,17 +20,11 @@ interface Config {
 	options?: ServerOptions;
 }
 
-export class HyperAPINodeDriver
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	implements HyperAPIDriver<HyperAPINodeRequest<any>>
-{
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	private handler: HyperAPIDriverHandler<HyperAPINodeRequest<any>> | null =
-		null;
+export class HyperAPINodeDriver extends HyperAPIDriver<HyperAPINodeRequest> {
 	private port: number;
 	private path: string;
 	private multipart_formdata_enabled: boolean;
-	private server: Server | null = null;
+	private server: Server;
 	private server_options: ServerOptions;
 
 	/**
@@ -49,18 +40,13 @@ export class HyperAPINodeDriver
 		multipart_formdata_enabled = false,
 		options = {},
 	}: Config) {
+		super();
+
 		this.port = port;
 		this.path = path;
 		this.multipart_formdata_enabled = multipart_formdata_enabled;
 		this.server_options = options;
-	}
 
-	/**
-	 * Starts the server.
-	 * @param handler - The handler to use.
-	 */
-	start(handler: HyperAPIDriverHandler<HyperAPINodeRequest>): void {
-		this.handler = handler;
 		this.server = createServer(this.server_options, async (req, res) => {
 			let response: ResponseSchema;
 
@@ -90,12 +76,8 @@ export class HyperAPINodeDriver
 
 			res.end();
 		});
-		this.server.listen(this.port);
-	}
 
-	/** Stops the server. */
-	stop(): void {
-		this.server?.close();
+		this.server.listen(this.port);
 	}
 
 	/**
@@ -104,10 +86,6 @@ export class HyperAPINodeDriver
 	 * @returns -
 	 */
 	private async processRequest(req: IncomingMessage): Promise<ResponseSchema> {
-		if (!this.handler) {
-			throw new Error('No handler available.');
-		}
-
 		const http_method = req.method;
 		if (isHttpMethodSupported(http_method) !== true) {
 			return { status: 405 };
@@ -146,7 +124,7 @@ export class HyperAPINodeDriver
 			}
 		}
 
-		const hyperapi_response = await this.handler({
+		const hyperapi_response = await this.emitRequest({
 			method: http_method,
 			path: hyperapi_method,
 			args: hyperapi_args,
@@ -168,6 +146,13 @@ export class HyperAPINodeDriver
 				? JSON.stringify(hyperapi_response)
 				: undefined,
 		};
+	}
+
+	/** Stops the server. */
+	override destroy(): void {
+		this.server?.close();
+
+		super.destroy();
 	}
 }
 
