@@ -24,7 +24,7 @@
 		"busboy": "1.6.0"
 	},
 	"peerDependencies": {
-		"@hyperapi/core": "github:hyperapi/core#5b3d7425be5b8526055aceeb4475a48f430d1736",
+		"@hyperapi/core": "github:hyperapi/core#fda360853e4fdd986bedc7e275e11241fd62140e",
 		"@kirick/ip": "^0.1.1"
 	},
 	"devDependencies": {
