@@ -237,6 +237,9 @@ var HyperAPINodeDriver = class extends __hyperapi_core_dev.HyperAPIDriver {
 			if (response.body !== void 0) res.write(response.body);
 			res.end();
 		});
+		if (process.env.NODE_ENV === "test") this.server.on("error", (error) => {
+			if (error && "code" in error && error.code === "EADDRINUSE") {} else throw error;
+		});
 		this.server.listen(this.port);
 	}
 	/**

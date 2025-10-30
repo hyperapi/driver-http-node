@@ -77,6 +77,17 @@ export class HyperAPINodeDriver extends HyperAPIDriver<HyperAPINodeRequest> {
 			res.end();
 		});
 
+		// bugged vitest executes file twice, so ignore EADDRINUSE error.
+		if (process.env.NODE_ENV === 'test') {
+			this.server.on('error', (error) => {
+				if (error && 'code' in error && error.code === 'EADDRINUSE') {
+					// ignore
+				} else {
+					throw error;
+				}
+			});
+		}
+
 		this.server.listen(this.port);
 	}
 

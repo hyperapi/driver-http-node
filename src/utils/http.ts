@@ -16,13 +16,13 @@ export function isHttpMethodSupported(
 	http_method: unknown,
 ): http_method is HttpMethod {
 	return (
-		http_method === 'GET' ||
-		http_method === 'POST' ||
-		http_method === 'PUT' ||
-		http_method === 'PATCH' ||
-		http_method === 'DELETE' ||
-		http_method === 'HEAD' ||
-		http_method === 'OPTIONS'
+		http_method === 'GET'
+		|| http_method === 'POST'
+		|| http_method === 'PUT'
+		|| http_method === 'PATCH'
+		|| http_method === 'DELETE'
+		|| http_method === 'HEAD'
+		|| http_method === 'OPTIONS'
 	);
 }
 
