@@ -226,10 +226,10 @@ async function parseArguments(req, url, is_multipart_formdata_enabled) {
 //#endregion
 //#region src/main.ts
 var HyperAPINodeDriver = class extends _hyperapi_core_dev.HyperAPIDriver {
-	path;
-	multipart_formdata_enabled;
-	parse_body;
-	server;
+	#path;
+	#multipart_formdata_enabled;
+	#parse_body;
+	#server;
 	/**
 	* @param options -
 	* @param options.port - HTTP server port. If not provided, the server listens on a port the OS picks.
@@ -240,10 +240,10 @@ var HyperAPINodeDriver = class extends _hyperapi_core_dev.HyperAPIDriver {
 	*/
 	constructor({ port, path = "/", multipart_formdata_enabled = false, parse_body = true, server_options = {} }) {
 		super();
-		this.path = path;
-		this.multipart_formdata_enabled = multipart_formdata_enabled;
-		this.parse_body = parse_body;
-		this.server = (0, node_http.createServer)(server_options, async (req, res) => {
+		this.#path = path;
+		this.#multipart_formdata_enabled = multipart_formdata_enabled;
+		this.#parse_body = parse_body;
+		this.#server = (0, node_http.createServer)(server_options, async (req, res) => {
 			let response;
 			try {
 				response = await this.processRequest(req);
@@ -259,7 +259,7 @@ var HyperAPINodeDriver = class extends _hyperapi_core_dev.HyperAPIDriver {
 			if (response.body !== void 0) res.write(response.body);
 			res.end();
 		});
-		this.server.listen(port);
+		this.#server.listen(port);
 	}
 	/**
 	* Accepts anything HTTP can carry: this transport adds a raw `Response` to
@@ -280,9 +280,9 @@ var HyperAPINodeDriver = class extends _hyperapi_core_dev.HyperAPIDriver {
 		if (isHttpMethodSupported(http_method) !== true) return { status: 405 };
 		if (typeof req.url !== "string") throw new TypeError("Request URL is not a string.");
 		const url = new URL(req.url, `http://${req.headers.host ?? "unknown"}`);
-		if (url.pathname.startsWith(this.path) !== true) return { status: 404 };
+		if (url.pathname.startsWith(this.#path) !== true) return { status: 404 };
 		const hyperapi_http_method = http_method === "HEAD" ? "GET" : http_method;
-		const hyperapi_method = url.pathname.slice(this.path.length);
+		const hyperapi_method = url.pathname.slice(this.#path.length);
 		const ip_string = req.socket.remoteAddress;
 		if (typeof ip_string !== "string") throw new TypeError("Remote address is not a string.");
 		const headers = new Headers();
@@ -296,8 +296,8 @@ var HyperAPINodeDriver = class extends _hyperapi_core_dev.HyperAPIDriver {
 			ip: new _kirick_ip.IP(ip_string)
 		};
 		let hyperapi_request;
-		if (this.parse_body) {
-			const hyperapi_args = await parseArguments(req, url, this.multipart_formdata_enabled);
+		if (this.#parse_body) {
+			const hyperapi_args = await parseArguments(req, url, this.#multipart_formdata_enabled);
 			hyperapi_request = {
 				...hyperapi_request_base,
 				args: hyperapi_args
@@ -334,11 +334,11 @@ var HyperAPINodeDriver = class extends _hyperapi_core_dev.HyperAPIDriver {
 	/** Stops the server. */
 	async destroy() {
 		await new Promise((resolve, reject) => {
-			this.server.close((error) => {
+			this.#server.close((error) => {
 				if (error) reject(error);
 				else resolve();
 			});
-			this.server.closeIdleConnections();
+			this.#server.closeIdleConnections();
 		});
 		await super.destroy();
 	}

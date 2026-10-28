@@ -52,10 +52,7 @@ interface Config<P extends boolean = true> {
   server_options?: ServerOptions;
 }
 declare class HyperAPINodeDriver<P extends boolean = true> extends HyperAPIDriver<HyperAPINodeRequest<P, RequestArgs>, HyperAPINodeResponse> {
-  private path;
-  private multipart_formdata_enabled;
-  private parse_body;
-  private server;
+  #private;
   /**
   * @param options -
   * @param options.port - HTTP server port. If not provided, the server listens on a port the OS picks.

@@ -12,8 +12,8 @@ import type { HyperAPINodeResponse } from './response.js';
 import type { ResponseSchema } from './types.js';
 import { isHttpMethodSupported, isResponseBodyRequired } from './utils/http.js';
 import { hyperApiErrorToResponse } from './utils/hyperapi-error.js';
-import { TEXT_ENCODER } from './utils/text.js';
 import { parseArguments, type RequestArgs } from './utils/parse.js';
+import { TEXT_ENCODER } from './utils/text.js';
 
 interface Config<P extends boolean = true> {
 	port?: number;
@@ -29,10 +29,10 @@ export class HyperAPINodeDriver<
 	HyperAPINodeRequest<P, RequestArgs>,
 	HyperAPINodeResponse
 > {
-	private path: string;
-	private multipart_formdata_enabled: boolean;
-	private parse_body: P;
-	private server: Server;
+	#path: string;
+	#multipart_formdata_enabled: boolean;
+	#parse_body: P;
+	#server: Server;
 
 	/**
 	 * @param options -
@@ -51,11 +51,11 @@ export class HyperAPINodeDriver<
 	}: Config<P>) {
 		super();
 
-		this.path = path;
-		this.multipart_formdata_enabled = multipart_formdata_enabled;
-		this.parse_body = parse_body;
+		this.#path = path;
+		this.#multipart_formdata_enabled = multipart_formdata_enabled;
+		this.#parse_body = parse_body;
 
-		this.server = createServer(server_options, async (req, res) => {
+		this.#server = createServer(server_options, async (req, res) => {
 			let response: ResponseSchema;
 
 			try {
@@ -85,7 +85,7 @@ export class HyperAPINodeDriver<
 			res.end();
 		});
 
-		this.server.listen(port);
+		this.#server.listen(port);
 	}
 
 	/**
@@ -117,7 +117,7 @@ export class HyperAPINodeDriver<
 		}
 
 		const url = new URL(req.url, `http://${req.headers.host ?? 'unknown'}`);
-		if (url.pathname.startsWith(this.path) !== true) {
+		if (url.pathname.startsWith(this.#path) !== true) {
 			return { status: 404 };
 		}
 
@@ -125,7 +125,7 @@ export class HyperAPINodeDriver<
 		// the body is dropped further down anyway.
 		const hyperapi_http_method = http_method === 'HEAD' ? 'GET' : http_method;
 
-		const hyperapi_method = url.pathname.slice(this.path.length);
+		const hyperapi_method = url.pathname.slice(this.#path.length);
 
 		const ip_string = req.socket.remoteAddress;
 		if (typeof ip_string !== 'string') {
@@ -152,11 +152,11 @@ export class HyperAPINodeDriver<
 		};
 
 		let hyperapi_request: HyperAPINodeRequest<P, RequestArgs>;
-		if (this.parse_body) {
+		if (this.#parse_body) {
 			const hyperapi_args = await parseArguments(
 				req,
 				url as URL,
-				this.multipart_formdata_enabled,
+				this.#multipart_formdata_enabled,
 			);
 
 			hyperapi_request = {
@@ -212,7 +212,7 @@ export class HyperAPINodeDriver<
 	/** Stops the server. */
 	override async destroy(): Promise<void> {
 		await new Promise<void>((resolve, reject) => {
-			this.server.close((error) => {
+			this.#server.close((error) => {
 				if (error) {
 					reject(error);
 				} else {
@@ -222,7 +222,7 @@ export class HyperAPINodeDriver<
 
 			// `close` alone waits for every keep-alive socket to go idle on its
 			// own, which a client holding one open never does.
-			this.server.closeIdleConnections();
+			this.#server.closeIdleConnections();
 		});
 
 		await super.destroy();
