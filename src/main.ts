@@ -8,46 +8,54 @@ import { HyperAPIError } from '@hyperapi/core';
 import { HyperAPIDriver } from '@hyperapi/core/dev';
 import { IP } from '@kirick/ip';
 import type { HyperAPINodeRequest } from './request.js';
+import type { HyperAPINodeResponse } from './response.js';
 import type { ResponseSchema } from './types.js';
 import { isHttpMethodSupported, isResponseBodyRequired } from './utils/http.js';
 import { hyperApiErrorToResponse } from './utils/hyperapi-error.js';
-import { parseArguments } from './utils/parse.js';
+import { TEXT_ENCODER } from './utils/text.js';
+import { parseArguments, type RequestArgs } from './utils/parse.js';
 
-interface Config {
-	port: number;
+interface Config<P extends boolean = true> {
+	port?: number;
 	path?: string;
 	multipart_formdata_enabled?: boolean;
-	options?: ServerOptions;
+	parse_body?: P;
+	server_options?: ServerOptions;
 }
 
-export class HyperAPINodeDriver extends HyperAPIDriver<HyperAPINodeRequest> {
-	private port: number;
+export class HyperAPINodeDriver<
+	P extends boolean = true,
+> extends HyperAPIDriver<
+	HyperAPINodeRequest<P, RequestArgs>,
+	HyperAPINodeResponse
+> {
 	private path: string;
 	private multipart_formdata_enabled: boolean;
+	private parse_body: P;
 	private server: Server;
-	private server_options: ServerOptions;
 
 	/**
 	 * @param options -
-	 * @param options.port - HTTP server port. Default: `8001`.
-	 * @param [options.path] - Path to serve. Default: `/api/`.
-	 * @param [options.multipart_formdata_enabled] - If `true`, server would parse `multipart/form-data` requests. Default: `false`.
-	 * @param [options.options] - NodeJS server options.
+	 * @param options.port - HTTP server port. If not provided, the server listens on a port the OS picks.
+	 * @param options.path - Path to serve. Default: `/`.
+	 * @param options.multipart_formdata_enabled - If `true`, server would parse `multipart/form-data` requests. Default: `false`.
+	 * @param options.parse_body - If `true`, server would parse the request body into `args`. If `false`, the unread request is handed over as `request` instead. Default: `true`.
+	 * @param options.server_options - Options passed to `http.createServer`.
 	 */
 	constructor({
 		port,
-		path = '/api/',
+		path = '/',
 		multipart_formdata_enabled = false,
-		options = {},
-	}: Config) {
+		parse_body = true as P,
+		server_options = {},
+	}: Config<P>) {
 		super();
 
-		this.port = port;
 		this.path = path;
 		this.multipart_formdata_enabled = multipart_formdata_enabled;
-		this.server_options = options;
+		this.parse_body = parse_body;
 
-		this.server = createServer(this.server_options, async (req, res) => {
+		this.server = createServer(server_options, async (req, res) => {
 			let response: ResponseSchema;
 
 			try {
@@ -77,18 +85,20 @@ export class HyperAPINodeDriver extends HyperAPIDriver<HyperAPINodeRequest> {
 			res.end();
 		});
 
-		// bugged vitest executes file twice, so ignore EADDRINUSE error.
-		if (process.env.NODE_ENV === 'test') {
-			this.server.on('error', (error) => {
-				if (error && 'code' in error && error.code === 'EADDRINUSE') {
-					// ignore
-				} else {
-					throw error;
-				}
-			});
-		}
+		this.server.listen(port);
+	}
 
-		this.server.listen(this.port);
+	/**
+	 * Accepts anything HTTP can carry: this transport adds a raw `Response` to
+	 * the core floor.
+	 * @param response - The value a module returned.
+	 * @returns -
+	 */
+	// oxlint-disable-next-line class-methods-use-this
+	override isValidResponse(
+		response: unknown,
+	): response is HyperAPINodeResponse {
+		return response instanceof Response || super.isValidResponse(response);
 	}
 
 	/**
@@ -111,13 +121,11 @@ export class HyperAPINodeDriver extends HyperAPIDriver<HyperAPINodeRequest> {
 			return { status: 404 };
 		}
 
-		const hyperapi_method = url.pathname.slice(this.path.length);
+		// HEAD is served by the GET module: the router knows no HEAD routes, and
+		// the body is dropped further down anyway.
+		const hyperapi_http_method = http_method === 'HEAD' ? 'GET' : http_method;
 
-		const hyperapi_args = await parseArguments(
-			req,
-			url as URL,
-			this.multipart_formdata_enabled,
-		);
+		const hyperapi_method = url.pathname.slice(this.path.length);
 
 		const ip_string = req.socket.remoteAddress;
 		if (typeof ip_string !== 'string') {
@@ -135,36 +143,97 @@ export class HyperAPINodeDriver extends HyperAPIDriver<HyperAPINodeRequest> {
 			}
 		}
 
-		const hyperapi_response = await this.emitRequest({
-			method: http_method,
+		const hyperapi_request_base = {
+			method: hyperapi_http_method,
 			path: hyperapi_method,
-			args: hyperapi_args,
 			url: url as URL,
 			headers,
 			ip: new IP(ip_string),
-		});
+		};
+
+		let hyperapi_request: HyperAPINodeRequest<P, RequestArgs>;
+		if (this.parse_body) {
+			const hyperapi_args = await parseArguments(
+				req,
+				url as URL,
+				this.multipart_formdata_enabled,
+			);
+
+			hyperapi_request = {
+				...hyperapi_request_base,
+				args: hyperapi_args,
+			} as HyperAPINodeRequest<P, RequestArgs>;
+		} else {
+			hyperapi_request = {
+				...hyperapi_request_base,
+				args: {},
+				req,
+			} as HyperAPINodeRequest<P, RequestArgs>;
+		}
+
+		const hyperapi_response = await this.fetch(hyperapi_request);
 
 		if (hyperapi_response instanceof HyperAPIError) {
 			throw hyperapi_response;
 		}
 
+		// The body is built either way: a HEAD response carries the headers its
+		// GET would carry, Content-Length included (RFC 9110), and only then
+		// drops the body.
+		const should_add_body = isResponseBodyRequired(req.method);
+
+		if (hyperapi_response instanceof Response) {
+			// `arrayBuffer`, not `text`: the module may well be returning
+			// something that is not text at all.
+			const body = new Uint8Array(await hyperapi_response.arrayBuffer());
+
+			return {
+				status: hyperapi_response.status,
+				headers: {
+					...Object.fromEntries(hyperapi_response.headers),
+					'Content-Length': String(body.length),
+				},
+				body: should_add_body ? body : undefined,
+			};
+		}
+
+		const body = TEXT_ENCODER.encode(JSON.stringify(hyperapi_response) ?? '');
+
 		return {
 			status: 200,
 			headers: {
 				'Content-Type': 'application/json',
+				'Content-Length': String(body.length),
 			},
-			body: isResponseBodyRequired(http_method)
-				? JSON.stringify(hyperapi_response)
-				: undefined,
+			body: should_add_body ? body : undefined,
 		};
 	}
 
 	/** Stops the server. */
-	override destroy(): void {
-		this.server?.close();
+	override async destroy(): Promise<void> {
+		await new Promise<void>((resolve, reject) => {
+			this.server.close((error) => {
+				if (error) {
+					reject(error);
+				} else {
+					resolve();
+				}
+			});
 
-		super.destroy();
+			// `close` alone waits for every keep-alive socket to go idle on its
+			// own, which a client holding one open never does.
+			this.server.closeIdleConnections();
+		});
+
+		await super.destroy();
 	}
 }
 
-export { type HyperAPINodeRequest } from './request.js';
+export type {
+	HyperAPINodeRequest,
+	HyperAPINodeRequestWithArgs,
+	HyperAPINodeRequestWithRequest,
+} from './request.js';
+export { type HyperAPINodeResponse } from './response.js';
+export { toText } from './utils/parse/text.js';
+export { toUint8Array } from './utils/parse/uint8array.js';

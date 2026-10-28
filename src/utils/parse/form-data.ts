@@ -1,4 +1,3 @@
-import { Blob } from 'node:buffer';
 import { IncomingMessage } from 'node:http';
 import busboy from 'busboy';
 
@@ -6,28 +5,30 @@ import busboy from 'busboy';
 
 /**
  * Parses request body as multipart/form-data.
- * @param  req - NodeJS request object.
+ * @param req - NodeJS request object.
  * @returns - JSON object.
  */
-export function parseFormData(
+export function toFormData(
 	req: IncomingMessage,
-): Promise<Record<string, string | Blob>> {
-	return new Promise<Record<string, string | Blob>>((resolve) => {
+): Promise<Record<string, string | File>> {
+	return new Promise<Record<string, string | File>>((resolve) => {
 		const bb = busboy({
 			headers: req.headers,
 		});
 
-		const form_data: Record<string, string | Blob> = {};
+		const form_data: Record<string, string | File> = {};
 
 		bb.on('file', (name, file, info) => {
 			const file_parts: Uint8Array[] = [];
 
-			file.on('data', (chunk: Buffer) => {
-				file_parts.push(chunk as Uint8Array);
+			file.on('data', (chunk: Uint8Array) => {
+				file_parts.push(chunk);
 			});
 
 			file.on('end', () => {
-				form_data[name] = new Blob(file_parts, { type: info.mimeType });
+				form_data[name] = new File(file_parts, info.filename, {
+					type: info.mimeType,
+				});
 			});
 		});
 

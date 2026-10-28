@@ -6,8 +6,6 @@ export default hyperApi
 	.use(valibot(v.object({ name: v.string() })))
 	.action((request) => {
 		return {
-			method: 'ALL',
 			message: `Hello, ${request.args.name}!`,
-			header_value: request.headers.get('x-test-header'),
 		};
 	});

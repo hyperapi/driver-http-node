@@ -1,3 +1,4 @@
+import { createHmac } from 'node:crypto';
 import { HyperAPI, HyperAPIInvalidParametersError } from '@hyperapi/core';
 import type { HyperAPIRequest } from '@hyperapi/core/dev';
 import * as v from 'valibot';
@@ -20,7 +21,15 @@ export const hyperApiMultipart = new HyperAPI(
 	ROOT,
 );
 
-type ValiBaseSchema = Parameters<typeof v.parser>[0];
+export const hyperApiWithoutParse = new HyperAPI(
+	new HyperAPINodeDriver({
+		port: 18003,
+		parse_body: false,
+	}),
+	ROOT,
+);
+
+export type ValiBaseSchema = Parameters<typeof v.parser>[0];
 
 /**
  * Valibot validator for HyperAPI requests.
@@ -36,4 +45,14 @@ export function valibot<S extends ValiBaseSchema>(schema: S) {
 
 		throw new HyperAPIInvalidParametersError();
 	};
+}
+
+/**
+ * Generate HMAC SHA256.
+ * @param key - The key to use for HMAC generation.
+ * @param message - The message to generate HMAC for.
+ * @returns The HMAC in hexadecimal format.
+ */
+export function generateHmacSha256(key: string, message: string): string {
+	return createHmac('sha256', key).update(message).digest('hex');
 }

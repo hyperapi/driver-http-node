@@ -1,5 +1,5 @@
 export interface ResponseSchema {
 	status: number;
 	headers?: Record<string, string>;
-	body?: string | undefined;
+	body?: Uint8Array | undefined;
 }

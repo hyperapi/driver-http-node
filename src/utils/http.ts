@@ -1,29 +1,24 @@
-type HttpMethod =
-	| 'GET'
-	| 'POST'
-	| 'PUT'
-	| 'PATCH'
-	| 'DELETE'
-	| 'HEAD'
-	| 'OPTIONS';
+const HTTP_METHODS = [
+	'GET',
+	'POST',
+	'PUT',
+	'PATCH',
+	'DELETE',
+	'HEAD',
+	'OPTIONS',
+] as const;
+
+type HttpMethod = (typeof HTTP_METHODS)[number];
 
 /**
- * Checks if the response body is required for the given HTTP method.
+ * Checks if the given HTTP method is one this driver serves.
  * @param http_method The HTTP method to check.
  * @returns -
  */
 export function isHttpMethodSupported(
 	http_method: unknown,
 ): http_method is HttpMethod {
-	return (
-		http_method === 'GET'
-		|| http_method === 'POST'
-		|| http_method === 'PUT'
-		|| http_method === 'PATCH'
-		|| http_method === 'DELETE'
-		|| http_method === 'HEAD'
-		|| http_method === 'OPTIONS'
-	);
+	return HTTP_METHODS.includes(http_method as HttpMethod);
 }
 
 /**
