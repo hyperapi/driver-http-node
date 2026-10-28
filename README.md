@@ -1,6 +1,7 @@
 # HyperAPI HTTP Driver for Node.js
 
 [![npm version](https://img.shields.io/npm/v/@hyperapi/driver-node.svg)](https://www.npmjs.com/package/@hyperapi/driver-node)
+[![Open on npmx.dev](https://npmx.dev/api/registry/badge/version/@hyperapi/driver-node?style=shieldsio&label=npmx.dev)](https://npmx.dev/package/@hyperapi/driver-node)
 [![license](https://img.shields.io/npm/l/@hyperapi/driver-node.svg?color=blue)](https://github.com/hyperapi/driver-http-node/blob/main/LICENSE)
 
 HyperAPI HTTP driver for [Node.js](https://nodejs.org), built on the native `http` module.
