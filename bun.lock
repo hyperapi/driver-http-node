@@ -22,7 +22,7 @@
         "vitest": "5.0.5",
       },
       "peerDependencies": {
-        "@hyperapi/core": "github:hyperapi/core#7e59428a9a8954d81467ec4f2eaf7ce32a52daea",
+        "@hyperapi/core": "github:hyperapi/core#daac5df164cba7ce5f2638afef5dc13659d4f1c0",
         "@kirick/ip": "^0.2.1",
       },
     },
@@ -142,7 +142,7 @@
 
     "@humanwhocodes/retry": ["@humanwhocodes/retry@0.4.3", "", {}, "sha512-bV0Tgo9K4hfPCek+aMAn81RppFKv2ySDQeMoSZuvTASywNTnVJCArCZE2FWqpvIatKu7VMRLWlR1EazvVhDyhQ=="],
 
-    "@hyperapi/core": ["@hyperapi/core@github:hyperapi/core#7e59428", { "dependencies": { "itty-router": "5.0.24", "neoevents": "0.3.0", "type-fest": "5.7.0" } }, "hyperapi-core-7e59428", "sha512-14s2a3wslprSY8LbVmf87dJA4/IK/RiIrecnovaQwioPd2gV5f6pxrqT11bv3qhaMjjPVVLhDQdPkAPmYFukvA=="],
+    "@hyperapi/core": ["@hyperapi/core@github:hyperapi/core#daac5df", { "dependencies": { "itty-router": "5.0.24", "neoevents": "0.3.1", "type-fest": "5.7.0" } }, "hyperapi-core-daac5df", "sha512-5ap6Tnwh9z+lQqsPILmg/kRyY9c7xs0WwzCWE8SDzRSbHRC8HcnXMIBvgXliXloWXCF9UgM8GYCw0Reg9YG9Ow=="],
 
     "@jridgewell/gen-mapping": ["@jridgewell/gen-mapping@0.4.0-beta.0", "", { "dependencies": { "@jridgewell/sourcemap-codec": "^1.6.0-beta.0", "@jridgewell/trace-mapping": "^0.3.24" } }, "sha512-JdGNkbE4GlNPYQhM0L95fBQr7ctLZJ276QXQLTad4t1oSdnnCI3fDq9DW3BqYAWv8Wc3+HS+4Gsii1oPMCfz1w=="],
 
@@ -530,7 +530,7 @@
 
     "natural-compare": ["natural-compare@1.4.0", "", {}, "sha512-OWND8ei3VtNC9h7V60qff3SVobHr996CTwgxubgyQYEpg290h9J0buyECNNJexkFm5sOajh5G116RYA1c8ZMSw=="],
 
-    "neoevents": ["neoevents@0.3.0", "", {}, "sha512-et9vcJ8ElRUbgxeJXAw++1noXVY302fxRvwEoIDll9KiQAeySjTQBdLtATvtE17MgbitLjjixI5UcFOS92EI+w=="],
+    "neoevents": ["neoevents@0.3.1", "", {}, "sha512-DgXN+njGY1kSFp3zLUb8JzkrZt6SjmzK1UnLf2i/sbMYXAiiZMJk+RhQboir8Q4r6eMIOzdcGr/c8nDk+lPrFw=="],
 
     "node-releases": ["node-releases@2.0.60", "", {}, "sha512-OmO8+GM1JUZqXET720VrJCwkjUCXmCMQm0Z3UDDRbfNLHS4NEAvY60j5jiFv0tkKw2PNNlqOLhahVmwJIOLDIQ=="],
 

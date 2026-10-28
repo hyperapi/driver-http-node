@@ -39,6 +39,29 @@ describe('args', () => {
 		expect(body.byteLength).toStrictEqual(0);
 	});
 
+	test('QUERY', async () => {
+		// QUERY is a safe method that still carries a request body, so the args
+		// come from the body rather than the query string.
+		const response = await fetch('http://localhost:18001/echo', {
+			method: 'QUERY',
+			headers: {
+				'Content-Type': 'application/json',
+			},
+			body: JSON.stringify({
+				name: 'foo',
+			}),
+		});
+
+		expect(response.status).toBe(200);
+		expect(response.headers.get('Content-Type')).toBe('application/json');
+
+		const body_json = await response.json();
+		expect(body_json).toStrictEqual({
+			method: 'echo-query',
+			message: 'Hello, foo!',
+		});
+	});
+
 	describe('POST', () => {
 		test('JSON', async () => {
 			const response = await fetch('http://localhost:18001/echo', {

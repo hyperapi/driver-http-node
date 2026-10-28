@@ -11,7 +11,8 @@ const HTTP_METHODS = [
 	"PATCH",
 	"DELETE",
 	"HEAD",
-	"OPTIONS"
+	"OPTIONS",
+	"QUERY"
 ];
 /**
 * Checks if the given HTTP method is one this driver serves.
